@@ -133,11 +133,12 @@
 
     /* Letter labels */
     .letter-row {
+      --cols: 27;
       display: grid;
-      grid-template-columns: repeat(27, var(--cs));
+      grid-template-columns: repeat(var(--cols), var(--cs));
       gap: var(--cg);
       margin-bottom: 4px;
-      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+      min-width: calc(var(--cols) * var(--cs) + (var(--cols) - 1) * var(--cg));
     }
     .lbl-c {
       height: 18px;
@@ -152,19 +153,21 @@
 
     /* Grids */
     .melody-grid {
+      --cols: 27;
       display: grid;
-      grid-template-columns: repeat(27, var(--cs));
+      grid-template-columns: repeat(var(--cols), var(--cs));
       grid-template-rows: repeat(7, var(--cs));
       gap: var(--cg);
-      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+      min-width: calc(var(--cols) * var(--cs) + (var(--cols) - 1) * var(--cg));
     }
     .kick-grid,
     .hat-grid {
+      --cols: 27;
       display: grid;
-      grid-template-columns: repeat(27, var(--cs));
+      grid-template-columns: repeat(var(--cols), var(--cs));
       grid-template-rows: var(--cs);
       gap: var(--cg);
-      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+      min-width: calc(var(--cols) * var(--cs) + (var(--cols) - 1) * var(--cg));
     }
     .kick-grid { margin-top: 8px; }
     .hat-grid  { margin-top: var(--cg); }
@@ -391,11 +394,8 @@
 (function () {
   /* ── CONSTANTS ── */
   const ROWS    = 7;
-  const COLS    = 27; /* 7 letras × 3 cols + 6 gaps internos */
   const FREQS   = [440, 392, 349.23, 329.63, 293.66, 261.63, 246.94]; // A4 G4 F4 E4 D4 C4 B3
   const NOTES   = ['A4','G4','F4','E4','D4','C4','B3'];
-  /* Gap columns that act as visual spacers between letters */
-  const GAPS    = new Set([3, 7, 11, 15, 19, 23]);
 
   /* Pixel-font patterns 3 alto × 3 ancho — espejo del wordmark del logo */
   const A = [[0,1,0],[1,1,1],[1,0,1]];
@@ -403,42 +403,64 @@
   const L = [[1,0,0],[1,0,0],[1,1,1]];
   const Y = [[1,0,1],[0,1,0],[0,1,0]];
 
-  /* Cada letra empieza en una fila distinta para crear melodía cuando se reproduce */
-  const LETTERS = [
-    { pat: A, start:  0, rowOffset: 4, label: 'A' }, // graves D4 C4 B3
-    { pat: T, start:  4, rowOffset: 2, label: 'T' }, // F4 E4 D4
-    { pat: A, start:  8, rowOffset: 0, label: 'A' }, // agudos A4 G4 F4
-    { pat: L, start: 12, rowOffset: 3, label: 'L' }, // E4 D4 C4
-    { pat: A, start: 16, rowOffset: 1, label: 'A' }, // G4 F4 E4
-    { pat: Y, start: 20, rowOffset: 4, label: 'Y' }, // graves D4 C4 B3
-    { pat: A, start: 24, rowOffset: 0, label: 'A' }, // agudos A4 G4 F4
-  ];
+  /*
+   * CONFIG por compás.
+   *   4/4: 8 compases × 4 cols (3 letra + 1 gap) = 32 cols. ATALAYA en 7,
+   *        compás 8 vacío como respiro/cierre de frase.
+   *   3/4: 9 compases × 3 cols (cada letra encaja exacto en 1 compás de 3
+   *        beats, sin gaps) = 27 cols. ATALAYA en 7, compases 8 y 9 vacíos.
+   * Cada letra trae rowOffset distinto para que el preset suene melódico.
+   */
+  const CONFIG = {
+    '4/4': {
+      cols: 32,
+      letters: [
+        { pat: A, start:  0, rowOffset: 4, label: 'A' }, // graves
+        { pat: T, start:  4, rowOffset: 2, label: 'T' },
+        { pat: A, start:  8, rowOffset: 0, label: 'A' }, // agudos
+        { pat: L, start: 12, rowOffset: 3, label: 'L' },
+        { pat: A, start: 16, rowOffset: 1, label: 'A' },
+        { pat: Y, start: 20, rowOffset: 4, label: 'Y' },
+        { pat: A, start: 24, rowOffset: 0, label: 'A' },
+      ],
+      gaps:    [3, 7, 11, 15, 19, 23, 27, 31], // beat 4 de cada compás
+      accents: [0, 4, 8, 12, 16, 20, 24, 28],  // inicio de cada compás
+      kick:    [0, 8, 16, 24],                 // boom en compases 1, 3, 5, 7
+      hat:     [4, 12, 20, 28],                // hat en compases 2, 4, 6, 8
+    },
+    '3/4': {
+      cols: 27,
+      letters: [
+        { pat: A, start:  0, rowOffset: 4, label: 'A' },
+        { pat: T, start:  3, rowOffset: 2, label: 'T' },
+        { pat: A, start:  6, rowOffset: 0, label: 'A' },
+        { pat: L, start:  9, rowOffset: 3, label: 'L' },
+        { pat: A, start: 12, rowOffset: 1, label: 'A' },
+        { pat: Y, start: 15, rowOffset: 4, label: 'Y' },
+        { pat: A, start: 18, rowOffset: 0, label: 'A' },
+      ],
+      gaps:    [], // cada letra ES un compás de 3 cols, no necesita gaps
+      accents: [0, 3, 6, 9, 12, 15, 18, 21, 24], // inicio de cada compás
+      kick:    [0, 9, 18],   // boom cada 3 compases (frases)
+      hat:     [3, 6, 12, 15, 21, 24], // beats 1 de los compases que no llevan kick
+    },
+  };
 
-  /* Compás: 4/4 o 3/4. Define preset de drums + acentos visuales. */
   let timeSig = '4/4';
-  const KICK_PRESETS = {
-    '4/4': [0, 8, 16, 24],
-    '3/4': [0, 12, 20],
-  };
-  const HAT_PRESETS = {
-    '4/4': [4, 12, 20, 26],
-    '3/4': [6, 18, 26],
-  };
-  const ACCENT_COLS = {
-    '4/4': [0, 8, 16, 24],   /* inicios de "beat" en 4/4 */
-    '3/4': [0, 12, 20],
-  };
+  let cfg     = CONFIG[timeSig];
+  const getCols = () => cfg.cols;
+  const isGap   = (c) => cfg.gaps.includes(c);
 
   /* ── STATE ── */
-  /* melodyState[row][col], kickState[col], hatState[col] */
-  const melodyState = Array.from({ length: ROWS }, () => new Uint8Array(COLS));
-  const kickState   = new Uint8Array(COLS);
-  const hatState    = new Uint8Array(COLS);
+  /* melodyState[row][col], kickState[col], hatState[col] — se reasignan al cambiar compás */
+  let melodyState = Array.from({ length: ROWS }, () => new Uint8Array(getCols()));
+  let kickState   = new Uint8Array(getCols());
+  let hatState    = new Uint8Array(getCols());
 
-  /* DOM cell references */
-  const mCells = Array.from({ length: ROWS }, () => new Array(COLS));
-  const kCells = new Array(COLS);
-  const hCells = new Array(COLS);
+  /* DOM cell references — se reasignan al rebuild */
+  let mCells = Array.from({ length: ROWS }, () => new Array(getCols()));
+  let kCells = new Array(getCols());
+  let hCells = new Array(getCols());
 
   /* Playback */
   let audioCtx    = null;
@@ -470,70 +492,88 @@
   hatLbl.textContent = 'HAT';
   pitchCol.appendChild(hatLbl);
 
-  /* Letter label row */
-  const letterRow = document.getElementById('letter-row');
-  for (let c = 0; c < COLS; c++) {
-    const span = document.createElement('div');
-    span.className = 'lbl-c';
-    /* Show letter above the center column of each letter group */
-    const ld = LETTERS.find(x => x.start + 1 === c);
-    if (ld) { span.textContent = ld.label; span.classList.add('show'); }
-    letterRow.appendChild(span);
-  }
+  /* Build all the per-step grids. Idempotent — safe to call on rebuild. */
+  function buildGrids() {
+    const COLS = getCols();
+    const letterRow  = document.getElementById('letter-row');
+    const melodyGrid = document.getElementById('melody-grid');
+    const kickGrid   = document.getElementById('kick-grid');
+    const hatGrid    = document.getElementById('hat-grid');
 
-  /* Melody grid */
-  const melodyGrid = document.getElementById('melody-grid');
-  for (let r = 0; r < ROWS; r++) {
+    /* Set CSS --cols so grid-template-columns and min-width respond */
+    [letterRow, melodyGrid, kickGrid, hatGrid].forEach(el => {
+      el.style.setProperty('--cols', COLS);
+    });
+
+    /* Wipe previous DOM */
+    letterRow.innerHTML  = '';
+    melodyGrid.innerHTML = '';
+    kickGrid.innerHTML   = '';
+    hatGrid.innerHTML    = '';
+
+    /* Letter label row */
+    for (let c = 0; c < COLS; c++) {
+      const span = document.createElement('div');
+      span.className = 'lbl-c';
+      const ld = cfg.letters.find(x => x.start + 1 === c);
+      if (ld) { span.textContent = ld.label; span.classList.add('show'); }
+      letterRow.appendChild(span);
+    }
+
+    /* Melody grid */
+    mCells = Array.from({ length: ROWS }, () => new Array(COLS));
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const btn = document.createElement('button');
+        btn.className = 'cell';
+        btn.setAttribute('aria-label', NOTES[r] + ' paso ' + (c + 1));
+        if (isGap(c)) {
+          btn.setAttribute('data-gap', '');
+          btn.disabled = true;
+        } else {
+          btn.addEventListener('click', () => toggleMelody(r, c));
+        }
+        melodyGrid.appendChild(btn);
+        mCells[r][c] = btn;
+      }
+    }
+
+    /* Kick grid */
+    kCells = new Array(COLS);
     for (let c = 0; c < COLS; c++) {
       const btn = document.createElement('button');
-      btn.className = 'cell';
-      btn.setAttribute('aria-label', NOTES[r] + ' paso ' + (c + 1));
-      if (GAPS.has(c)) {
+      btn.className = 'cell kick';
+      btn.setAttribute('aria-label', 'Kick paso ' + (c + 1));
+      if (isGap(c)) {
         btn.setAttribute('data-gap', '');
         btn.disabled = true;
       } else {
-        btn.addEventListener('click', () => toggleMelody(r, c));
+        btn.addEventListener('click', () => toggleKick(c));
       }
-      melodyGrid.appendChild(btn);
-      mCells[r][c] = btn;
+      kickGrid.appendChild(btn);
+      kCells[c] = btn;
     }
-  }
 
-  /* Kick grid */
-  const kickGrid = document.getElementById('kick-grid');
-  for (let c = 0; c < COLS; c++) {
-    const btn = document.createElement('button');
-    btn.className = 'cell kick';
-    btn.setAttribute('aria-label', 'Kick paso ' + (c + 1));
-    if (GAPS.has(c)) {
-      btn.setAttribute('data-gap', '');
-      btn.disabled = true;
-    } else {
-      btn.addEventListener('click', () => toggleKick(c));
+    /* Hi-hat grid */
+    hCells = new Array(COLS);
+    for (let c = 0; c < COLS; c++) {
+      const btn = document.createElement('button');
+      btn.className = 'cell hat';
+      btn.setAttribute('aria-label', 'Hi-hat paso ' + (c + 1));
+      if (isGap(c)) {
+        btn.setAttribute('data-gap', '');
+        btn.disabled = true;
+      } else {
+        btn.addEventListener('click', () => toggleHat(c));
+      }
+      hatGrid.appendChild(btn);
+      hCells[c] = btn;
     }
-    kickGrid.appendChild(btn);
-    kCells[c] = btn;
-  }
-
-  /* Hi-hat grid */
-  const hatGrid = document.getElementById('hat-grid');
-  for (let c = 0; c < COLS; c++) {
-    const btn = document.createElement('button');
-    btn.className = 'cell hat';
-    btn.setAttribute('aria-label', 'Hi-hat paso ' + (c + 1));
-    if (GAPS.has(c)) {
-      btn.setAttribute('data-gap', '');
-      btn.disabled = true;
-    } else {
-      btn.addEventListener('click', () => toggleHat(c));
-    }
-    hatGrid.appendChild(btn);
-    hCells[c] = btn;
   }
 
   /* Apply visual beat accents based on time signature */
   function applyAccents() {
-    const accents = ACCENT_COLS[timeSig];
+    const COLS = getCols();
     /* Clear previous */
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++) mCells[r][c]?.classList.remove('beat-accent');
@@ -541,7 +581,7 @@
       kCells[c]?.classList.remove('beat-accent');
       hCells[c]?.classList.remove('beat-accent');
     }
-    accents.forEach(c => {
+    cfg.accents.forEach(c => {
       for (let r = 0; r < ROWS; r++) mCells[r][c]?.classList.add('beat-accent');
       kCells[c]?.classList.add('beat-accent');
       hCells[c]?.classList.add('beat-accent');
@@ -574,6 +614,7 @@
 
   /* ── PRESETS ── */
   function clearAll() {
+    const COLS = getCols();
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         melodyState[r][c] = 0;
@@ -587,15 +628,15 @@
   }
 
   function applyDrumPreset() {
-    /* clear drums first */
+    const COLS = getCols();
     for (let c = 0; c < COLS; c++) {
       kickState[c] = 0; kCells[c]?.classList.remove('on');
       hatState[c]  = 0; hCells[c]?.classList.remove('on');
     }
-    KICK_PRESETS[timeSig].forEach(c => {
+    cfg.kick.forEach(c => {
       kickState[c] = 1; kCells[c]?.classList.add('on');
     });
-    HAT_PRESETS[timeSig].forEach(c => {
+    cfg.hat.forEach(c => {
       hatState[c] = 1; hCells[c]?.classList.add('on');
     });
   }
@@ -603,7 +644,7 @@
   function loadAtalaya() {
     clearAll();
     /* Draw letterforms — cada letra es 3×3 con su propio rowOffset */
-    for (const ld of LETTERS) {
+    for (const ld of cfg.letters) {
       for (let r = 0; r < 3; r++) {
         for (let lc = 0; lc < 3; lc++) {
           if (ld.pat[r][lc]) {
@@ -616,6 +657,14 @@
       }
     }
     applyDrumPreset();
+  }
+
+  /* Resize state arrays to match current cfg.cols. Called on time-sig change. */
+  function resizeState() {
+    const COLS = getCols();
+    melodyState = Array.from({ length: ROWS }, () => new Uint8Array(COLS));
+    kickState   = new Uint8Array(COLS);
+    hatState    = new Uint8Array(COLS);
   }
 
   /* ── AUDIO ── */
@@ -688,6 +737,7 @@
   function scheduler() {
     const bpm      = Number(document.getElementById('bpm-input').value);
     const stepDur  = 60 / (bpm * 4); /* 16th-note duration */
+    const COLS     = getCols();
 
     while (nextTime < audioCtx.currentTime + LOOKAHEAD) {
       const step = currentStep;
@@ -784,19 +834,26 @@
   document.getElementById('btn-atalaya').addEventListener('click', () => { initAudio(); loadAtalaya(); });
   document.getElementById('btn-clear').addEventListener('click', clearAll);
 
-  /* Time signature toggle */
+  /* Time signature toggle — rebuild grid + state when compás changes */
   document.querySelectorAll('.ts-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const ts = btn.dataset.ts;
       if (ts === timeSig) return;
+      const wasPlaying = isPlaying;
+      if (wasPlaying) stopPlay();
       timeSig = ts;
+      cfg = CONFIG[timeSig];
       document.querySelectorAll('.ts-btn').forEach(b => b.classList.toggle('active', b === btn));
+      resizeState();
+      buildGrids();
       applyAccents();
-      applyDrumPreset();
+      loadAtalaya();
+      if (wasPlaying) startPlay();
     });
   });
 
-  /* Load ATALAYA preset + accents on page init */
+  /* Initial build */
+  buildGrids();
   applyAccents();
   loadAtalaya();
 })();
