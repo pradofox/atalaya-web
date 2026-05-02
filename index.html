@@ -73,7 +73,7 @@
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-grid">
+      <div class="hero-top">
         <div class="hero-mark" aria-hidden="true">
           <svg class="hero-svg" viewBox="135 350 520 95" xmlns="http://www.w3.org/2000/svg">
             <g fill="currentColor">
@@ -88,6 +88,7 @@
           </svg>
           <span class="hero-academia mono" aria-hidden="true">ACADEMIA</span>
         </div>
+
         <div class="hero-copy">
           <h1 class="hero-h1 sr-only">Atalaya - Academia de música urbana en Monterrey</h1>
           <p class="hero-claim">
@@ -103,11 +104,20 @@
           </div>
         </div>
       </div>
-    </section>
 
-    <div class="hero-band" aria-hidden="true">
-      <img src="/assets/textura/textura-ancho.png" alt="" />
-    </div>
+      <button id="hero-scene" class="hero-scene" aria-label="Escena: el personaje de Atalaya corriendo. Click o espacio para que salte." type="button">
+        <span class="scene-hint mono" aria-hidden="true">click / espacio para saltar</span>
+        <div class="scene-clouds" aria-hidden="true">
+          <span class="cloud cloud-1"></span>
+          <span class="cloud cloud-2"></span>
+          <span class="cloud cloud-3"></span>
+        </div>
+        <div class="scene-character" aria-hidden="true">
+          <img src="/assets/logo/personaje.png" alt="" width="220" height="280" />
+        </div>
+        <div class="scene-ground" aria-hidden="true"></div>
+      </button>
+    </section>
 
     <!-- POSICIONAMIENTO -->
     <section class="section section-intro">
@@ -128,9 +138,9 @@
         </div>
         <figure class="col-figure">
           <img src="/assets/fotos/refu.jpg" alt="Refugee tocando en vivo en una tarima con baterías y banda" loading="lazy" width="685" height="457" />
-          <figcaption class="mono">
-            <strong>Gera "Refugee"</strong>
-            <span>CEO &amp; Head Producer</span>
+          <figcaption>
+            <span>maestro</span>
+            <strong>refu</strong>
           </figcaption>
         </figure>
       </div>
@@ -156,12 +166,23 @@
             </figcaption>
           </figure>
         </div>
-        <figure class="col-figure col-figure-portrait">
-          <img src="/assets/fotos/nsqk-refu.jpg" alt="NSQK con beanie rosa junto a Refugee, recargados en una pared" loading="lazy" width="1120" height="747" />
-          <figcaption class="mono">
-            <strong>NSQK + Refu</strong>
-            <span>Detrás de cámaras</span>
+        <figure class="col-figure col-figure-portrait testimonio-carousel" id="testimonio-carousel">
+          <div class="carousel-slides">
+            <div class="carousel-slide is-active" data-slide="0">
+              <img src="/assets/fotos/nsqk-refu.jpg" alt="NSQK con beanie rosa junto a Refugee, recargados en una pared" loading="lazy" width="1120" height="747" />
+            </div>
+            <div class="carousel-slide" data-slide="1">
+              <img src="/assets/fotos/nsqk-historia-ig.png" alt="Captura de la historia de Instagram de NSQK mencionando a Refugee" loading="lazy" width="780" height="1387" />
+            </div>
+          </div>
+          <figcaption>
+            <span>testimonio</span>
+            <strong>nsqk</strong>
           </figcaption>
+          <div class="carousel-dots" role="tablist" aria-label="Cambiar foto del testimonio">
+            <button type="button" class="carousel-dot is-active" data-go="0" aria-label="Foto: NSQK + Refu" aria-selected="true"></button>
+            <button type="button" class="carousel-dot" data-go="1" aria-label="Captura de la historia de NSQK" aria-selected="false"></button>
+          </div>
         </figure>
       </div>
     </section>
@@ -403,6 +424,101 @@
           document.documentElement.classList.add('light');
         }
       } catch(e){}
+    })();
+  </script>
+
+  <script>
+    // hero scene: jump on click / space / tap
+    (function(){
+      var scene = document.getElementById('hero-scene');
+      if (!scene) return;
+      function jump(){
+        if (scene.classList.contains('jumping')) return;
+        scene.classList.add('jumping');
+        setTimeout(function(){ scene.classList.remove('jumping'); }, 720);
+      }
+      scene.addEventListener('click', jump);
+      window.addEventListener('keydown', function(e){
+        if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          jump();
+        }
+      });
+    })();
+
+    // testimonio carousel
+    (function(){
+      var carousel = document.getElementById('testimonio-carousel');
+      if (!carousel) return;
+      var slides = carousel.querySelectorAll('.carousel-slide');
+      var dots = carousel.querySelectorAll('.carousel-dot');
+      function go(i){
+        slides.forEach(function(s, idx){ s.classList.toggle('is-active', idx === i); });
+        dots.forEach(function(d, idx){
+          d.classList.toggle('is-active', idx === i);
+          d.setAttribute('aria-selected', idx === i ? 'true' : 'false');
+        });
+      }
+      dots.forEach(function(dot){
+        dot.addEventListener('click', function(e){
+          e.stopPropagation();
+          go(parseInt(dot.dataset.go, 10));
+        });
+      });
+      // auto-advance every 5s, pause on hover
+      var idx = 0;
+      var auto = setInterval(function(){ idx = (idx + 1) % slides.length; go(idx); }, 5000);
+      carousel.addEventListener('mouseenter', function(){ clearInterval(auto); });
+    })();
+
+    // cursor brackets (PRADO-style)
+    (function(){
+      if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var L = document.createElement('span');
+      var R = document.createElement('span');
+      L.className = 'cursor-bracket';
+      R.className = 'cursor-bracket';
+      L.textContent = '[';
+      R.textContent = ']';
+      document.body.appendChild(L);
+      document.body.appendChild(R);
+      var hoverSel = 'a, button, [role="button"], summary, input, textarea, select';
+      var hovering = null;
+      var mx = -100, my = -100, lx = mx, ly = my;
+      function onMove(e){ mx = e.clientX; my = e.clientY; }
+      window.addEventListener('mousemove', onMove);
+      function frame(){
+        // smoothing
+        lx += (mx - lx) * 0.35;
+        ly += (my - ly) * 0.35;
+        if (hovering) {
+          var r = hovering.getBoundingClientRect();
+          var pad = 6;
+          var lx2 = r.left - pad - 8;
+          var rx2 = r.right + pad - 4;
+          var cy = r.top + r.height / 2 - 14;
+          L.style.transform = 'translate(' + lx2 + 'px,' + cy + 'px)';
+          R.style.transform = 'translate(' + rx2 + 'px,' + cy + 'px)';
+        } else {
+          L.style.transform = 'translate(' + (lx - 22) + 'px,' + (ly - 11) + 'px)';
+          R.style.transform = 'translate(' + (lx + 8) + 'px,' + (ly - 11) + 'px)';
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      document.addEventListener('mouseover', function(e){
+        var t = e.target.closest(hoverSel);
+        if (t) {
+          hovering = t;
+          L.classList.add('is-hover');
+          R.classList.add('is-hover');
+        } else if (hovering && !e.target.closest(hoverSel)) {
+          hovering = null;
+          L.classList.remove('is-hover');
+          R.classList.remove('is-hover');
+        }
+      });
     })();
   </script>
 

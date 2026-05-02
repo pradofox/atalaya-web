@@ -153,33 +153,38 @@ strong { font-weight: 700; }
 .hero {
   display: flex;
   flex-direction: column;
-  padding: 110px var(--pad-x) 64px;
+  padding: 110px var(--pad-x) 0;
   position: relative;
   overflow: hidden;
+  min-height: 92vh;
+  min-height: 92svh;
 }
 @media (min-width: 900px) {
   .hero {
-    padding: 130px var(--pad-x) 80px;
-    min-height: 88vh;
-    min-height: 88svh;
-    justify-content: center;
+    padding: 130px var(--pad-x) 0;
+    min-height: 96vh;
+    min-height: 96svh;
   }
 }
-.hero-grid {
+.hero-top {
   width: 100%;
   max-width: var(--maxw);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 32px;
+  flex: 1;
   align-items: center;
+  padding-bottom: 32px;
 }
 @media (min-width: 900px) {
-  .hero-grid {
+  .hero-top {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: 56px;
+    padding-bottom: 48px;
   }
 }
+/* hero-grid: replaced by .hero-top */
 .hero-mark {
   width: 100%;
   max-width: 560px;
@@ -232,20 +237,135 @@ strong { font-weight: 700; }
   .hero-svg .px { opacity: 1; animation: none; transform: none; }
   .hero-academia { opacity: 1; animation: none; }
 }
-.hero-band {
-  width: 100%;
-  height: 64px;
+/* ============================================================
+   HERO SCENE - personaje 8-bit corriendo (Chrome dino style)
+   ============================================================ */
+.hero-scene {
+  position: relative;
+  width: calc(100% + 2 * var(--pad-x));
+  margin-left: calc(-1 * var(--pad-x));
+  margin-right: calc(-1 * var(--pad-x));
+  height: 180px;
+  background: var(--azul); /* match personaje.png baked bg */
+  border: 0;
+  border-top: 2px solid rgba(199, 239, 0, 0.18);
+  cursor: pointer;
+  padding: 0;
   overflow: hidden;
-  opacity: 0.95;
+  font: inherit;
+  color: inherit;
+  display: block;
+  text-align: left;
 }
-.hero-band img {
+@media (min-width: 700px) { .hero-scene { height: 220px; } }
+@media (min-width: 1080px) { .hero-scene { height: 260px; } }
+.hero-scene:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+.scene-hint {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* clouds (parallax background, scrolling slow) */
+.scene-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.cloud {
+  position: absolute;
+  background: var(--accent);
+  opacity: 0.18;
+  border-radius: 0;
+  width: 60px;
+  height: 16px;
+  animation: cloudDrift 22s linear infinite;
+}
+.cloud-1 { top: 18%; left: -10%; animation-duration: 26s; }
+.cloud-2 { top: 38%; left: -25%; width: 90px; height: 22px; opacity: 0.12; animation-duration: 34s; }
+.cloud-3 { top: 22%; left: -50%; width: 40px; height: 12px; opacity: 0.22; animation-duration: 19s; }
+@keyframes cloudDrift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(140vw); }
+}
+
+/* ground - scrolls horizontally infinitely */
+.scene-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  background-image: url('/assets/textura/textura-ancho.png');
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: 0 bottom;
+  animation: groundScroll 8s linear infinite;
+  z-index: 1;
+}
+@media (min-width: 700px) { .scene-ground { height: 48px; } }
+@keyframes groundScroll {
+  from { background-position: 0 bottom; }
+  to   { background-position: -800px bottom; }
+}
+
+/* character - bouncing run + jump */
+.scene-character {
+  position: absolute;
+  bottom: 32px;
+  left: clamp(24px, 12%, 140px);
+  width: 56px;
+  height: 72px;
+  z-index: 2;
+  animation: charRun 0.4s steps(2, end) infinite;
+  transform-origin: bottom center;
+}
+@media (min-width: 700px) { .scene-character { width: 76px; height: 96px; bottom: 44px; } }
+.scene-character img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
   display: block;
+  image-rendering: pixelated;
+  object-fit: contain;
 }
-@media (min-width: 900px) { .hero-band { height: 90px; } }
+@keyframes charRun {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  50%      { transform: translateY(-3px) scaleX(0.96); }
+}
+
+.hero-scene.jumping .scene-character {
+  animation: charJump 0.7s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+@keyframes charJump {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-90px) rotate(-6deg); }
+  60%  { transform: translateY(-90px) rotate(-6deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+@media (min-width: 700px) {
+  @keyframes charJump {
+    0%   { transform: translateY(0); }
+    40%  { transform: translateY(-120px) rotate(-6deg); }
+    60%  { transform: translateY(-120px) rotate(-6deg); }
+    100% { transform: translateY(0) rotate(0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-character { animation: none; }
+  .scene-ground { animation: none; }
+  .cloud { animation: none; opacity: 0; }
+  .scene-hint { display: none; }
+}
 .hero-text {
   display: contents;
 }
@@ -303,35 +423,143 @@ strong { font-weight: 700; }
     align-items: start;
   }
 }
+/* cutout-style figure (8-bit pixel-stepped panel) */
 .col-figure {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  position: relative;
+  background: var(--accent);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 0;
 }
 .col-figure img {
   width: 100%;
-  height: auto;
-  border-radius: 14px;
-  display: block;
-  border: 1px solid var(--divider);
-  aspect-ratio: 4 / 3;
+  height: 100%;
   object-fit: cover;
+  display: block;
+  /* stepped cutout on TOP-LEFT corner, reveals lima panel behind */
+  clip-path: polygon(
+    0 22%, 8% 22%, 8% 16%,
+    16% 16%, 16% 11%,
+    24% 11%, 24% 6%,
+    32% 6%, 32% 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+  transition: transform .5s ease;
 }
-.col-figure-portrait img { aspect-ratio: 3 / 2; }
+.col-figure:hover img { transform: scale(1.02); }
+.col-figure-portrait { aspect-ratio: 3 / 4; }
 .col-figure figcaption {
+  position: absolute;
+  top: 14px;
+  left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: var(--fg-soft);
-  text-transform: uppercase;
-  padding: 0 4px;
+  gap: 0;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--azul);
+  text-transform: lowercase;
+  font-family: var(--font-mono);
+  z-index: 2;
+  font-weight: 700;
 }
 .col-figure figcaption strong {
+  color: var(--azul);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  font-weight: 900;
+  line-height: 1;
+}
+.col-figure figcaption span:not(strong) {
+  font-weight: 400;
+  font-size: 10px;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+/* carousel inside testimonio figure */
+.testimonio-carousel { position: relative; }
+.carousel-slides {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+.carousel-slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  clip-path: polygon(
+    0 22%, 8% 22%, 8% 16%,
+    16% 16%, 16% 11%,
+    24% 11%, 24% 6%,
+    32% 6%, 32% 0,
+    100% 0, 100% 100%, 0 100%
+  );
+}
+.carousel-dots {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+  background: var(--accent);
+  padding: 6px 8px;
+  border-radius: 999px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--azul);
+  background: transparent;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  transition: background .2s;
+}
+.carousel-dot.is-active { background: var(--azul); }
+.carousel-dot:hover:not(.is-active) { background: rgba(43, 45, 66, 0.3); }
+
+/* ============================================================
+   CURSOR brackets (estilo PRADO)
+   ============================================================ */
+.cursor-bracket {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  line-height: 1;
   color: var(--accent);
-  letter-spacing: 0.1em;
+  font-size: 22px;
+  z-index: 9999;
+  display: none;
+  will-change: transform;
+  transition: transform 0.12s ease-out, font-size 0.18s ease, opacity 0.2s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cursor-bracket { display: block; }
+}
+.cursor-bracket.is-hover { font-size: 32px; }
+@media (prefers-reduced-motion: reduce) {
+  .cursor-bracket { display: none; }
 }
 
 .lede {
