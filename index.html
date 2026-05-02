@@ -142,7 +142,7 @@
             No es una escuela tradicional. Es un espacio para aprender técnica, recibir feedback honesto sobre lo que estás produciendo y construir comunidad con otros artistas que también están armando su proyecto.
           </p>
         </div>
-        <figure class="col-figure">
+        <figure class="col-figure col-figure-cutout-right">
           <img src="/assets/fotos/refu.jpg" alt="Refugee tocando en vivo en una tarima con baterías y banda" loading="lazy" width="685" height="457" />
           <figcaption>
             <span>maestro</span>
@@ -447,7 +447,7 @@
 
       if (reduced) return;
 
-      // spawn obstacles
+      // spawn obstacles + atalayin auto-jumps some of them
       var variants = ['ob-cube', 'ob-tall', 'ob-stack'];
       function spawnObstacle(){
         var ob = document.createElement('span');
@@ -456,6 +456,18 @@
         ob.style.setProperty('--dur', dur + 's');
         obContainer.appendChild(ob);
         ob.addEventListener('animationend', function(){ ob.remove(); });
+
+        // ~60% chance: atalayin auto-jumps right before obstacle reaches him
+        if (Math.random() < 0.6) {
+          // obstacle arrives at character at ~85% of its travel; jump ~0.32s before
+          var jumpAt = Math.max(120, dur * 1000 * 0.85 - 320);
+          setTimeout(function(){
+            if (!scene.classList.contains('jumping') && !scene.classList.contains('crashed')) {
+              jump();
+            }
+          }, jumpAt);
+        }
+
         // schedule next: 1.6 - 3.6s
         setTimeout(spawnObstacle, 1600 + Math.random() * 2000);
       }

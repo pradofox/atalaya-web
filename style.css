@@ -490,6 +490,20 @@ strong { font-weight: 700; }
   transition: transform .5s ease;
 }
 .col-figure-portrait img { aspect-ratio: 3 / 4; }
+.col-figure-cutout-right img {
+  /* mirror del cutout: stepped notch en top-right */
+  clip-path: polygon(
+    0 0,
+    68% 0, 68% 6%,
+    76% 6%, 76% 11%,
+    84% 11%, 84% 16%,
+    92% 16%, 92% 22%,
+    100% 22%,
+    100% 100%,
+    0 100%
+  );
+}
+.col-figure-cutout-right figcaption { align-items: flex-end; text-align: right; }
 .col-figure figcaption {
   display: flex;
   flex-direction: column;
