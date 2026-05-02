@@ -132,6 +132,15 @@ strong { font-weight: 700; }
   shape-rendering: crispEdges;
 }
 @media (min-width: 700px) { .nav-mark { width: 156px; } }
+.nav-beat {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gris);
+  padding: 8px 10px;
+  transition: color .2s;
+}
+.nav-beat:hover { color: var(--accent); }
 .nav-cta {
   font-size: 12px;
   letter-spacing: 0.12em;

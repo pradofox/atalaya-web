@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Beat Builder — Atalaya</title>
+  <meta name="description" content="El piano roll interactivo de Atalaya. Cada polígono del logo es una nota. Dibuja tu beat." />
+  <meta name="theme-color" content="#2b2d42" />
+  <link rel="icon" href="/assets/logo/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* === TOKENS === */
+    :root {
+      --azul:    #2b2d42;
+      --azul-2:  #1e1f2e;
+      --lima:    #c7ef00;
+      --gris:    #8d99ae;
+      --blanco:  #edf2f4;
+      --divider: rgba(255,255,255,.08);
+      --card:    rgba(255,255,255,.04);
+      --cs: 24px;
+      --cg: 3px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    body {
+      background: var(--azul);
+      color: var(--blanco);
+      font-family: 'Chivo Mono', monospace;
+      min-height: 100dvh;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+
+    /* === NAV === */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--azul);
+      border-bottom: 1px solid var(--divider);
+    }
+    .nav-logo { display: flex; align-items: center; }
+    .nav-mark { height: 26px; color: var(--lima); display: block; }
+    .nav-back {
+      font-size: 0.68rem; letter-spacing: 0.1em;
+      color: var(--gris); transition: color .15s;
+    }
+    .nav-back:hover { color: var(--lima); }
+
+    /* === PAGE === */
+    .beat-page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* === HERO === */
+    .beat-hero { text-align: center; }
+    .beat-hero h1 {
+      font-size: clamp(2.4rem, 9vw, 5rem);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--lima);
+      line-height: 1;
+      margin-bottom: 0.7rem;
+    }
+    .beat-hero p {
+      font-size: 0.8rem;
+      color: var(--gris);
+      max-width: 52ch;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* === SEQUENCER === */
+    .seq-outer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* Pitch label column */
+    .pitch-col {
+      flex-shrink: 0;
+      width: 34px;
+      display: flex;
+      flex-direction: column;
+      padding-top: 22px; /* letter-row height + margin */
+    }
+    .pitch-lbl {
+      height: var(--cs);
+      margin-bottom: var(--cg);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 0.56rem;
+      letter-spacing: 0.04em;
+      color: var(--gris);
+      line-height: 1;
+    }
+    .pitch-lbl.kick-lbl {
+      margin-top: 8px;
+      color: var(--blanco);
+      opacity: 0.4;
+      font-size: 0.52rem;
+    }
+    .pitch-lbl.hat-lbl {
+      color: var(--blanco);
+      opacity: 0.4;
+      font-size: 0.52rem;
+    }
+
+    /* Scrollable grid */
+    .grid-area {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      padding-bottom: 4px;
+    }
+
+    /* Letter labels */
+    .letter-row {
+      display: grid;
+      grid-template-columns: repeat(27, var(--cs));
+      gap: var(--cg);
+      margin-bottom: 4px;
+      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+    }
+    .lbl-c {
+      height: 18px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-align: center;
+      line-height: 18px;
+      color: transparent;
+    }
+    .lbl-c.show { color: var(--lima); }
+
+    /* Grids */
+    .melody-grid {
+      display: grid;
+      grid-template-columns: repeat(27, var(--cs));
+      grid-template-rows: repeat(7, var(--cs));
+      gap: var(--cg);
+      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+    }
+    .kick-grid,
+    .hat-grid {
+      display: grid;
+      grid-template-columns: repeat(27, var(--cs));
+      grid-template-rows: var(--cs);
+      gap: var(--cg);
+      min-width: calc(27 * var(--cs) + 26 * var(--cg));
+    }
+    .kick-grid { margin-top: 8px; }
+    .hat-grid  { margin-top: var(--cg); }
+
+    /* Cells */
+    .cell {
+      background: var(--card);
+      border: 1px solid var(--divider);
+      border-radius: 2px;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: background .07s, border-color .07s;
+    }
+    .cell:hover:not(:disabled) {
+      background: rgba(199,239,0,.2);
+      border-color: rgba(199,239,0,.35);
+    }
+    .cell.on {
+      background: var(--lima);
+      border-color: var(--lima);
+    }
+    .cell.on:hover { background: #d4f220; }
+    .cell.cur {
+      outline: 2px solid rgba(141,153,174,.6);
+      outline-offset: -2px;
+    }
+    .cell.on.cur { outline-color: var(--blanco); }
+
+    /* Gap cols — invisible */
+    .cell[data-gap] {
+      background: transparent !important;
+      border-color: transparent !important;
+      pointer-events: none;
+      outline: none !important;
+    }
+
+    /* Kick cells */
+    .cell.kick.on {
+      background: var(--blanco);
+      border-color: var(--blanco);
+    }
+    .cell.kick.on:hover { background: #fff; }
+
+    /* Hi-hat cells */
+    .cell.hat.on {
+      background: var(--gris);
+      border-color: var(--gris);
+    }
+    .cell.hat.on:hover { background: #a4afc1; }
+
+    /* Beat accent: thicker left border on first step of each beat */
+    .cell.beat-accent {
+      border-left: 2px solid rgba(199,239,0,.35);
+    }
+
+    /* === CONTROLS === */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-play {
+      background: var(--lima);
+      color: var(--azul);
+      border: none;
+      border-radius: 3px;
+      font-family: 'Chivo Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 0.6rem 1.5rem;
+      transition: background .15s, transform .1s;
+      min-width: 76px;
+    }
+    .btn-play:hover { background: #d4f220; }
+    .btn-play:active { transform: scale(.97); }
+    .btn-play.playing { background: var(--blanco); }
+
+    .bpm-wrap {
+      display: flex; align-items: center; gap: 0.5rem;
+      flex: 1; min-width: 140px;
+    }
+    .bpm-wrap input[type=range] {
+      flex: 1; accent-color: var(--lima);
+      cursor: pointer; height: 4px;
+    }
+    .bpm-val { font-size: 0.66rem; color: var(--gris); white-space: nowrap; min-width: 56px; }
+
+    .ts-toggle {
+      display: flex;
+      border: 1px solid var(--divider);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .ts-btn {
+      background: transparent;
+      color: var(--gris);
+      border: none;
+      font-family: 'Chivo Mono', monospace;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.5rem 0.75rem;
+      transition: background .15s, color .15s;
+    }
+    .ts-btn + .ts-btn { border-left: 1px solid var(--divider); }
+    .ts-btn:hover { color: var(--lima); }
+    .ts-btn.active { background: var(--lima); color: var(--azul); }
+
+    .preset-btns { display: flex; gap: 0.5rem; }
+    .btn-preset {
+      background: transparent;
+      color: var(--lima);
+      border: 1px solid var(--lima);
+      border-radius: 3px;
+      font-family: 'Chivo Mono', monospace;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.5rem 0.9rem;
+      transition: background .15s, color .15s;
+    }
+    .btn-preset:hover { background: var(--lima); color: var(--azul); }
+    .btn-clear { border-color: var(--gris); color: var(--gris); }
+    .btn-clear:hover { background: var(--gris); color: var(--azul); }
+
+    /* === CTA === */
+    .beat-cta {
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--divider);
+    }
+    .beat-cta p { font-size: 0.95rem; color: var(--gris); }
+    .btn-primary {
+      display: inline-block;
+      background: var(--lima); color: var(--azul);
+      font-family: 'Chivo Mono', monospace;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      padding: 0.8rem 2rem; border-radius: 3px;
+      transition: background .15s;
+    }
+    .btn-primary:hover { background: #d4f220; }
+
+    /* === FOOTER === */
+    footer {
+      text-align: center; padding: 2rem 1.5rem;
+      font-size: 0.62rem; color: var(--gris);
+      border-top: 1px solid var(--divider);
+      letter-spacing: 0.08em;
+    }
+    footer a:hover { color: var(--lima); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo" aria-label="Atalaya - inicio">
+    <svg class="nav-mark" viewBox="140 355 510 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>
+        <polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>
+        <polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>
+        <polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>
+        <polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>
+        <polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>
+        <polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>
+      </g>
+    </svg>
+    <span class="sr-only">Atalaya</span>
+  </a>
+  <a href="/" class="nav-back">← INICIO</a>
+</nav>
+
+<main class="beat-page">
+
+  <div class="beat-hero">
+    <h1>BEAT BUILDER</h1>
+    <p>El logo de Atalaya está inspirado en el piano roll de un DAW - cada polígono es una nota. Dibuja el tuyo y dale play.</p>
+  </div>
+
+  <div class="seq-outer">
+    <div class="pitch-col" id="pitch-col"></div>
+    <div class="grid-area">
+      <div class="letter-row" id="letter-row"></div>
+      <div class="melody-grid" id="melody-grid"></div>
+      <div class="kick-grid" id="kick-grid"></div>
+      <div class="hat-grid" id="hat-grid"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-play" id="play-btn">PLAY</button>
+    <div class="bpm-wrap">
+      <input type="range" id="bpm-input" min="60" max="180" value="120">
+      <span class="bpm-val" id="bpm-val">120 BPM</span>
+    </div>
+    <div class="ts-toggle" role="group" aria-label="Compas">
+      <button class="ts-btn active" data-ts="4/4">4/4</button>
+      <button class="ts-btn" data-ts="3/4">3/4</button>
+    </div>
+    <div class="preset-btns">
+      <button class="btn-preset" id="btn-atalaya">ATALAYA</button>
+      <button class="btn-preset btn-clear" id="btn-clear">CLEAR</button>
+    </div>
+  </div>
+
+  <div class="beat-cta">
+    <p>¿Quieres aprender a producir esto?</p>
+    <a href="/" class="btn-primary">VER CURSOS →</a>
+  </div>
+
+</main>
+
+<footer>
+  BEAT BUILDER &middot; ATALAYA MUSIC ACADEMY &middot;
+  <a href="https://sopadeletras.art">sopadeletras®</a>
+</footer>
+
+<script>
+(function () {
+  /* ── CONSTANTS ── */
+  const ROWS    = 7;
+  const COLS    = 27; /* 7 letras × 3 cols + 6 gaps internos */
+  const FREQS   = [440, 392, 349.23, 329.63, 293.66, 261.63, 246.94]; // A4 G4 F4 E4 D4 C4 B3
+  const NOTES   = ['A4','G4','F4','E4','D4','C4','B3'];
+  /* Gap columns that act as visual spacers between letters */
+  const GAPS    = new Set([3, 7, 11, 15, 19, 23]);
+
+  /* Pixel-font patterns 3 alto × 3 ancho — espejo del wordmark del logo */
+  const A = [[1,1,1],[1,0,1],[1,0,1]];
+  const T = [[1,1,1],[0,1,0],[0,1,0]];
+  const L = [[1,0,0],[1,0,0],[1,1,1]];
+  const Y = [[1,0,1],[0,1,0],[0,1,0]];
+
+  /* Cada letra empieza en una fila distinta para crear melodía cuando se reproduce */
+  const LETTERS = [
+    { pat: A, start:  0, rowOffset: 4, label: 'A' }, // graves D4 C4 B3
+    { pat: T, start:  4, rowOffset: 2, label: 'T' }, // F4 E4 D4
+    { pat: A, start:  8, rowOffset: 0, label: 'A' }, // agudos A4 G4 F4
+    { pat: L, start: 12, rowOffset: 3, label: 'L' }, // E4 D4 C4
+    { pat: A, start: 16, rowOffset: 1, label: 'A' }, // G4 F4 E4
+    { pat: Y, start: 20, rowOffset: 4, label: 'Y' }, // graves D4 C4 B3
+    { pat: A, start: 24, rowOffset: 0, label: 'A' }, // agudos A4 G4 F4
+  ];
+
+  /* Compás: 4/4 o 3/4. Define preset de drums + acentos visuales. */
+  let timeSig = '4/4';
+  const KICK_PRESETS = {
+    '4/4': [0, 8, 16, 24],
+    '3/4': [0, 12, 20],
+  };
+  const HAT_PRESETS = {
+    '4/4': [4, 12, 20, 26],
+    '3/4': [6, 18, 26],
+  };
+  const ACCENT_COLS = {
+    '4/4': [0, 8, 16, 24],   /* inicios de "beat" en 4/4 */
+    '3/4': [0, 12, 20],
+  };
+
+  /* ── STATE ── */
+  /* melodyState[row][col], kickState[col], hatState[col] */
+  const melodyState = Array.from({ length: ROWS }, () => new Uint8Array(COLS));
+  const kickState   = new Uint8Array(COLS);
+  const hatState    = new Uint8Array(COLS);
+
+  /* DOM cell references */
+  const mCells = Array.from({ length: ROWS }, () => new Array(COLS));
+  const kCells = new Array(COLS);
+  const hCells = new Array(COLS);
+
+  /* Playback */
+  let audioCtx    = null;
+  let isPlaying   = false;
+  let currentStep = 0;
+  let nextTime    = 0;
+  let timerId     = null;
+  let prevStep    = -1;
+
+  const LOOKAHEAD = 0.1;   /* seconds of audio to schedule ahead */
+  const INTERVAL  = 25;    /* scheduler poll interval ms */
+
+  /* ── BUILD DOM ── */
+
+  /* Pitch labels + kick label */
+  const pitchCol = document.getElementById('pitch-col');
+  NOTES.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'pitch-lbl';
+    d.textContent = n;
+    pitchCol.appendChild(d);
+  });
+  const kickLbl = document.createElement('div');
+  kickLbl.className = 'pitch-lbl kick-lbl';
+  kickLbl.textContent = 'KICK';
+  pitchCol.appendChild(kickLbl);
+  const hatLbl = document.createElement('div');
+  hatLbl.className = 'pitch-lbl hat-lbl';
+  hatLbl.textContent = 'HAT';
+  pitchCol.appendChild(hatLbl);
+
+  /* Letter label row */
+  const letterRow = document.getElementById('letter-row');
+  for (let c = 0; c < COLS; c++) {
+    const span = document.createElement('div');
+    span.className = 'lbl-c';
+    /* Show letter above the center column of each letter group */
+    const ld = LETTERS.find(x => x.start + 1 === c);
+    if (ld) { span.textContent = ld.label; span.classList.add('show'); }
+    letterRow.appendChild(span);
+  }
+
+  /* Melody grid */
+  const melodyGrid = document.getElementById('melody-grid');
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const btn = document.createElement('button');
+      btn.className = 'cell';
+      btn.setAttribute('aria-label', NOTES[r] + ' paso ' + (c + 1));
+      if (GAPS.has(c)) {
+        btn.setAttribute('data-gap', '');
+        btn.disabled = true;
+      } else {
+        btn.addEventListener('click', () => toggleMelody(r, c));
+      }
+      melodyGrid.appendChild(btn);
+      mCells[r][c] = btn;
+    }
+  }
+
+  /* Kick grid */
+  const kickGrid = document.getElementById('kick-grid');
+  for (let c = 0; c < COLS; c++) {
+    const btn = document.createElement('button');
+    btn.className = 'cell kick';
+    btn.setAttribute('aria-label', 'Kick paso ' + (c + 1));
+    if (GAPS.has(c)) {
+      btn.setAttribute('data-gap', '');
+      btn.disabled = true;
+    } else {
+      btn.addEventListener('click', () => toggleKick(c));
+    }
+    kickGrid.appendChild(btn);
+    kCells[c] = btn;
+  }
+
+  /* Hi-hat grid */
+  const hatGrid = document.getElementById('hat-grid');
+  for (let c = 0; c < COLS; c++) {
+    const btn = document.createElement('button');
+    btn.className = 'cell hat';
+    btn.setAttribute('aria-label', 'Hi-hat paso ' + (c + 1));
+    if (GAPS.has(c)) {
+      btn.setAttribute('data-gap', '');
+      btn.disabled = true;
+    } else {
+      btn.addEventListener('click', () => toggleHat(c));
+    }
+    hatGrid.appendChild(btn);
+    hCells[c] = btn;
+  }
+
+  /* Apply visual beat accents based on time signature */
+  function applyAccents() {
+    const accents = ACCENT_COLS[timeSig];
+    /* Clear previous */
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) mCells[r][c]?.classList.remove('beat-accent');
+    for (let c = 0; c < COLS; c++) {
+      kCells[c]?.classList.remove('beat-accent');
+      hCells[c]?.classList.remove('beat-accent');
+    }
+    accents.forEach(c => {
+      for (let r = 0; r < ROWS; r++) mCells[r][c]?.classList.add('beat-accent');
+      kCells[c]?.classList.add('beat-accent');
+      hCells[c]?.classList.add('beat-accent');
+    });
+  }
+
+  /* ── TOGGLE ── */
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function toggleMelody(r, c) {
+    initAudio();
+    melodyState[r][c] ^= 1;
+    mCells[r][c].classList.toggle('on', !!melodyState[r][c]);
+  }
+
+  function toggleKick(c) {
+    initAudio();
+    kickState[c] ^= 1;
+    kCells[c].classList.toggle('on', !!kickState[c]);
+  }
+
+  function toggleHat(c) {
+    initAudio();
+    hatState[c] ^= 1;
+    hCells[c].classList.toggle('on', !!hatState[c]);
+  }
+
+  /* ── PRESETS ── */
+  function clearAll() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        melodyState[r][c] = 0;
+        mCells[r][c]?.classList.remove('on');
+      }
+    }
+    for (let c = 0; c < COLS; c++) {
+      kickState[c] = 0; kCells[c]?.classList.remove('on');
+      hatState[c]  = 0; hCells[c]?.classList.remove('on');
+    }
+  }
+
+  function applyDrumPreset() {
+    /* clear drums first */
+    for (let c = 0; c < COLS; c++) {
+      kickState[c] = 0; kCells[c]?.classList.remove('on');
+      hatState[c]  = 0; hCells[c]?.classList.remove('on');
+    }
+    KICK_PRESETS[timeSig].forEach(c => {
+      kickState[c] = 1; kCells[c]?.classList.add('on');
+    });
+    HAT_PRESETS[timeSig].forEach(c => {
+      hatState[c] = 1; hCells[c]?.classList.add('on');
+    });
+  }
+
+  function loadAtalaya() {
+    clearAll();
+    /* Draw letterforms — cada letra es 3×3 con su propio rowOffset */
+    for (const ld of LETTERS) {
+      for (let r = 0; r < 3; r++) {
+        for (let lc = 0; lc < 3; lc++) {
+          if (ld.pat[r][lc]) {
+            const c  = ld.start + lc;
+            const gr = ld.rowOffset + r;
+            melodyState[gr][c] = 1;
+            mCells[gr][c].classList.add('on');
+          }
+        }
+      }
+    }
+    applyDrumPreset();
+  }
+
+  /* ── AUDIO ── */
+  function scheduleNote(time, freq) {
+    const ac = audioCtx;
+    const g  = ac.createGain();
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.28, time + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.48);
+    g.connect(ac.destination);
+
+    /* Triangle wave — warm overtones */
+    const o1 = ac.createOscillator();
+    o1.type = 'triangle';
+    o1.frequency.setValueAtTime(freq, time);
+    o1.connect(g); o1.start(time); o1.stop(time + 0.5);
+
+    /* Slight chorus detune */
+    const o2 = ac.createOscillator();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(freq * 1.004, time);
+    o2.connect(g); o2.start(time); o2.stop(time + 0.5);
+  }
+
+  function scheduleKick(time) {
+    const ac = audioCtx;
+    const g  = ac.createGain();
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.85, time + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.28);
+    g.connect(ac.destination);
+
+    const o = ac.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(160, time);
+    o.frequency.exponentialRampToValueAtTime(42, time + 0.12);
+    o.connect(g); o.start(time); o.stop(time + 0.3);
+  }
+
+  /* Noise buffer cached for hi-hat */
+  let noiseBuf = null;
+  function getNoiseBuf() {
+    if (noiseBuf) return noiseBuf;
+    const sr = audioCtx.sampleRate;
+    noiseBuf = audioCtx.createBuffer(1, sr * 0.2, sr);
+    const data = noiseBuf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    return noiseBuf;
+  }
+
+  function scheduleHat(time) {
+    const ac = audioCtx;
+    const src = ac.createBufferSource();
+    src.buffer = getNoiseBuf();
+
+    const hp = ac.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 7000;
+
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.22, time + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+
+    src.connect(hp); hp.connect(g); g.connect(ac.destination);
+    src.start(time); src.stop(time + 0.08);
+  }
+
+  /* ── SCHEDULER ── */
+  function scheduler() {
+    const bpm      = Number(document.getElementById('bpm-input').value);
+    const stepDur  = 60 / (bpm * 4); /* 16th-note duration */
+
+    while (nextTime < audioCtx.currentTime + LOOKAHEAD) {
+      const step = currentStep;
+      const t    = nextTime;
+
+      /* Schedule notes */
+      for (let r = 0; r < ROWS; r++) {
+        if (melodyState[r][step]) scheduleNote(t, FREQS[r]);
+      }
+      if (kickState[step]) scheduleKick(t);
+      if (hatState[step])  scheduleHat(t);
+
+      /* Schedule visual step indicator */
+      const delay = (t - audioCtx.currentTime) * 1000;
+      setTimeout(() => { if (isPlaying) advanceVisual(step); }, Math.max(0, delay - 8));
+
+      nextTime += stepDur;
+      currentStep = (currentStep + 1) % COLS;
+    }
+
+    timerId = setTimeout(scheduler, INTERVAL);
+  }
+
+  function advanceVisual(step) {
+    /* Clear previous */
+    if (prevStep >= 0) {
+      for (let r = 0; r < ROWS; r++) mCells[r][prevStep]?.classList.remove('cur');
+      kCells[prevStep]?.classList.remove('cur');
+      hCells[prevStep]?.classList.remove('cur');
+    }
+    /* Set current */
+    for (let r = 0; r < ROWS; r++) mCells[r][step]?.classList.add('cur');
+    kCells[step]?.classList.add('cur');
+    hCells[step]?.classList.add('cur');
+    prevStep = step;
+  }
+
+  function clearVisual() {
+    if (prevStep >= 0) {
+      for (let r = 0; r < ROWS; r++) mCells[r][prevStep]?.classList.remove('cur');
+      kCells[prevStep]?.classList.remove('cur');
+      hCells[prevStep]?.classList.remove('cur');
+      prevStep = -1;
+    }
+  }
+
+  /* ── PLAY / STOP ── */
+  const playBtn = document.getElementById('play-btn');
+
+  function startPlay() {
+    initAudio();
+    isPlaying   = true;
+    currentStep = 0;
+    nextTime    = audioCtx.currentTime + 0.05;
+    playBtn.textContent = 'STOP';
+    playBtn.classList.add('playing');
+    scheduler();
+  }
+
+  function stopPlay() {
+    isPlaying = false;
+    clearTimeout(timerId); timerId = null;
+    playBtn.textContent = 'PLAY';
+    playBtn.classList.remove('playing');
+    clearVisual();
+  }
+
+  playBtn.addEventListener('click', () => isPlaying ? stopPlay() : startPlay());
+
+  /* Spacebar shortcut */
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      isPlaying ? stopPlay() : startPlay();
+    }
+  });
+
+  /* Pause scheduler when tab hidden to prevent drift */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isPlaying) {
+      clearTimeout(timerId); timerId = null;
+    } else if (!document.hidden && isPlaying) {
+      nextTime = audioCtx.currentTime + 0.05;
+      scheduler();
+    }
+  });
+
+  /* BPM display */
+  const bpmInput = document.getElementById('bpm-input');
+  const bpmVal   = document.getElementById('bpm-val');
+  bpmInput.addEventListener('input', () => { bpmVal.textContent = bpmInput.value + ' BPM'; });
+
+  /* Buttons */
+  document.getElementById('btn-atalaya').addEventListener('click', () => { initAudio(); loadAtalaya(); });
+  document.getElementById('btn-clear').addEventListener('click', clearAll);
+
+  /* Time signature toggle */
+  document.querySelectorAll('.ts-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ts = btn.dataset.ts;
+      if (ts === timeSig) return;
+      timeSig = ts;
+      document.querySelectorAll('.ts-btn').forEach(b => b.classList.toggle('active', b === btn));
+      applyAccents();
+      applyDrumPreset();
+    });
+  });
+
+  /* Load ATALAYA preset + accents on page init */
+  applyAccents();
+  loadAtalaya();
+})();
+</script>
+
+</body>
+</html>
