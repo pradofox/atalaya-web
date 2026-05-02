@@ -105,7 +105,7 @@
         </div>
       </div>
 
-      <button id="hero-scene" class="hero-scene" aria-label="Escena: el personaje de Atalaya corriendo. Click o espacio para que salte." type="button">
+      <button id="hero-scene" class="hero-scene" aria-label="Atalayín corriendo. Click o espacio para saltar obstáculos." type="button">
         <span class="scene-hint mono" aria-hidden="true">click / espacio para saltar</span>
         <div class="scene-clouds" aria-hidden="true">
           <span class="cloud cloud-1"></span>
@@ -113,8 +113,14 @@
           <span class="cloud cloud-3"></span>
         </div>
         <div class="scene-character" aria-hidden="true">
-          <img src="/assets/logo/personaje.png" alt="" width="220" height="280" />
+          <svg class="atalayin" viewBox="270 130 540 820" xmlns="http://www.w3.org/2000/svg">
+            <g fill="currentColor">
+              <polygon points="717.15 327.12 717.15 232.5 628.57 232.5 628.57 137.89 451.42 137.89 451.42 232.5 362.85 232.5 362.85 327.12 274.27 327.12 274.27 421.73 451.42 421.73 451.42 327.12 540 327.12 628.57 327.12 628.57 421.73 805.73 421.73 805.73 327.12 717.15 327.12"/>
+              <polygon points="451.43 469.04 274.27 469.04 274.27 563.65 451.43 563.65 451.43 658.27 451.43 752.88 362.85 752.88 362.85 847.5 274.27 847.5 274.27 942.11 451.43 942.11 451.43 847.5 540 847.5 628.57 847.5 628.57 942.11 805.73 942.11 805.73 847.5 717.15 847.5 717.15 752.88 628.58 752.88 628.58 658.27 628.58 563.65 805.73 563.65 805.73 469.04 628.58 469.04 451.43 469.04"/>
+            </g>
+          </svg>
         </div>
+        <div class="scene-obstacles" aria-hidden="true"></div>
         <div class="scene-ground" aria-hidden="true"></div>
       </button>
     </section>
@@ -166,23 +172,12 @@
             </figcaption>
           </figure>
         </div>
-        <figure class="col-figure col-figure-portrait testimonio-carousel" id="testimonio-carousel">
-          <div class="carousel-slides">
-            <div class="carousel-slide is-active" data-slide="0">
-              <img src="/assets/fotos/nsqk-refu.jpg" alt="NSQK con beanie rosa junto a Refugee, recargados en una pared" loading="lazy" width="1120" height="747" />
-            </div>
-            <div class="carousel-slide" data-slide="1">
-              <img src="/assets/fotos/nsqk-historia-ig.png" alt="Captura de la historia de Instagram de NSQK mencionando a Refugee" loading="lazy" width="780" height="1387" />
-            </div>
-          </div>
+        <figure class="col-figure col-figure-portrait">
+          <img src="/assets/fotos/nsqk-refu.jpg" alt="NSQK con beanie rosa junto a Refugee, recargados en una pared" loading="lazy" width="1120" height="747" />
           <figcaption>
             <span>testimonio</span>
-            <strong>nsqk</strong>
+            <strong>nsqk + refu</strong>
           </figcaption>
-          <div class="carousel-dots" role="tablist" aria-label="Cambiar foto del testimonio">
-            <button type="button" class="carousel-dot is-active" data-go="0" aria-label="Foto: NSQK + Refu" aria-selected="true"></button>
-            <button type="button" class="carousel-dot" data-go="1" aria-label="Captura de la historia de NSQK" aria-selected="false"></button>
-          </div>
         </figure>
       </div>
     </section>
@@ -428,97 +423,65 @@
   </script>
 
   <script>
-    // hero scene: jump on click / space / tap
+    // hero scene: dino-style jump + spawn obstacles + collision flash
     (function(){
       var scene = document.getElementById('hero-scene');
       if (!scene) return;
+      var character = scene.querySelector('.scene-character');
+      var obContainer = scene.querySelector('.scene-obstacles');
+      var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       function jump(){
-        if (scene.classList.contains('jumping')) return;
+        if (scene.classList.contains('jumping') || scene.classList.contains('crashed')) return;
         scene.classList.add('jumping');
         setTimeout(function(){ scene.classList.remove('jumping'); }, 720);
       }
       scene.addEventListener('click', jump);
       window.addEventListener('keydown', function(e){
-        if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-          jump();
-        }
+        if (e.code !== 'Space') return;
+        var tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        e.preventDefault();
+        jump();
       });
-    })();
 
-    // testimonio carousel
-    (function(){
-      var carousel = document.getElementById('testimonio-carousel');
-      if (!carousel) return;
-      var slides = carousel.querySelectorAll('.carousel-slide');
-      var dots = carousel.querySelectorAll('.carousel-dot');
-      function go(i){
-        slides.forEach(function(s, idx){ s.classList.toggle('is-active', idx === i); });
-        dots.forEach(function(d, idx){
-          d.classList.toggle('is-active', idx === i);
-          d.setAttribute('aria-selected', idx === i ? 'true' : 'false');
-        });
-      }
-      dots.forEach(function(dot){
-        dot.addEventListener('click', function(e){
-          e.stopPropagation();
-          go(parseInt(dot.dataset.go, 10));
-        });
-      });
-      // auto-advance every 5s, pause on hover
-      var idx = 0;
-      var auto = setInterval(function(){ idx = (idx + 1) % slides.length; go(idx); }, 5000);
-      carousel.addEventListener('mouseenter', function(){ clearInterval(auto); });
-    })();
+      if (reduced) return;
 
-    // cursor brackets (PRADO-style)
-    (function(){
-      if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var L = document.createElement('span');
-      var R = document.createElement('span');
-      L.className = 'cursor-bracket';
-      R.className = 'cursor-bracket';
-      L.textContent = '[';
-      R.textContent = ']';
-      document.body.appendChild(L);
-      document.body.appendChild(R);
-      var hoverSel = 'a, button, [role="button"], summary, input, textarea, select';
-      var hovering = null;
-      var mx = -100, my = -100, lx = mx, ly = my;
-      function onMove(e){ mx = e.clientX; my = e.clientY; }
-      window.addEventListener('mousemove', onMove);
-      function frame(){
-        // smoothing
-        lx += (mx - lx) * 0.35;
-        ly += (my - ly) * 0.35;
-        if (hovering) {
-          var r = hovering.getBoundingClientRect();
-          var pad = 6;
-          var lx2 = r.left - pad - 8;
-          var rx2 = r.right + pad - 4;
-          var cy = r.top + r.height / 2 - 14;
-          L.style.transform = 'translate(' + lx2 + 'px,' + cy + 'px)';
-          R.style.transform = 'translate(' + rx2 + 'px,' + cy + 'px)';
-        } else {
-          L.style.transform = 'translate(' + (lx - 22) + 'px,' + (ly - 11) + 'px)';
-          R.style.transform = 'translate(' + (lx + 8) + 'px,' + (ly - 11) + 'px)';
-        }
-        requestAnimationFrame(frame);
+      // spawn obstacles
+      var variants = ['ob-cube', 'ob-tall', 'ob-stack'];
+      function spawnObstacle(){
+        var ob = document.createElement('span');
+        ob.className = 'scene-obstacle ' + variants[Math.floor(Math.random() * variants.length)];
+        var dur = 3.4 + Math.random() * 0.6;
+        ob.style.setProperty('--dur', dur + 's');
+        obContainer.appendChild(ob);
+        ob.addEventListener('animationend', function(){ ob.remove(); });
+        // schedule next: 1.6 - 3.6s
+        setTimeout(spawnObstacle, 1600 + Math.random() * 2000);
       }
-      requestAnimationFrame(frame);
-      document.addEventListener('mouseover', function(e){
-        var t = e.target.closest(hoverSel);
-        if (t) {
-          hovering = t;
-          L.classList.add('is-hover');
-          R.classList.add('is-hover');
-        } else if (hovering && !e.target.closest(hoverSel)) {
-          hovering = null;
-          L.classList.remove('is-hover');
-          R.classList.remove('is-hover');
+      // start after a short delay so first obstacle is reachable
+      setTimeout(spawnObstacle, 2200);
+
+      // simple AABB collision: each frame check character vs each obstacle
+      function tick(){
+        if (!scene.classList.contains('crashed')) {
+          var c = character.getBoundingClientRect();
+          // shrink hitbox slightly (visual feels better)
+          var cBox = { l: c.left + 8, r: c.right - 8, t: c.top + 6, b: c.bottom - 4 };
+          var obstacles = obContainer.children;
+          for (var i = 0; i < obstacles.length; i++) {
+            var o = obstacles[i].getBoundingClientRect();
+            if (o.right < cBox.l || o.left > cBox.r) continue;
+            if (o.bottom < cBox.t || o.top > cBox.b) continue;
+            // collision
+            scene.classList.add('crashed');
+            setTimeout(function(){ scene.classList.remove('crashed'); }, 380);
+            break;
+          }
         }
-      });
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
     })();
   </script>
 

@@ -298,14 +298,14 @@ strong { font-weight: 700; }
   to   { transform: translateX(140vw); }
 }
 
-/* ground - scrolls horizontally infinitely */
+/* ground - scrolls horizontally infinitely (SVG transparent texture) */
 .scene-ground {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 36px;
-  background-image: url('/assets/textura/textura-ancho.png');
+  background-image: url('/assets/textura/textura-piso.svg');
   background-repeat: repeat-x;
   background-size: auto 100%;
   background-position: 0 bottom;
@@ -316,6 +316,42 @@ strong { font-weight: 700; }
 @keyframes groundScroll {
   from { background-position: 0 bottom; }
   to   { background-position: -800px bottom; }
+}
+
+/* obstacles spawn on the right and slide left */
+.scene-obstacles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.scene-obstacle {
+  position: absolute;
+  bottom: 32px;
+  left: 100%;
+  background: var(--accent);
+  animation: obstacleSlide var(--dur, 3.6s) linear forwards;
+  will-change: transform;
+}
+@media (min-width: 700px) { .scene-obstacle { bottom: 44px; } }
+.ob-cube  { width: 18px; height: 18px; }
+.ob-tall  { width: 12px; height: 30px; }
+.ob-stack { width: 14px; height: 26px; box-shadow: 14px 0 0 var(--accent), 0 -14px 0 var(--accent); }
+@keyframes obstacleSlide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100vw - 80px)); }
+}
+
+/* collision: brief flash + shake */
+.hero-scene.crashed .scene-character {
+  animation: charCrash .35s ease-in-out;
+}
+@keyframes charCrash {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); filter: hue-rotate(60deg); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
 }
 
 /* character - bouncing run + jump */
@@ -330,12 +366,14 @@ strong { font-weight: 700; }
   transform-origin: bottom center;
 }
 @media (min-width: 700px) { .scene-character { width: 76px; height: 96px; bottom: 44px; } }
-.scene-character img {
+.scene-character {
+  color: var(--accent);
+}
+.scene-character .atalayin {
   width: 100%;
   height: 100%;
   display: block;
-  image-rendering: pixelated;
-  object-fit: contain;
+  shape-rendering: crispEdges;
 }
 @keyframes charRun {
   0%, 100% { transform: translateY(0) scaleX(1); }
@@ -423,22 +461,23 @@ strong { font-weight: 700; }
     align-items: start;
   }
 }
-/* cutout-style figure (8-bit pixel-stepped panel) */
+/* cutout-style figure: stepped notch revela el bg, sin texto sobre la foto */
 .col-figure {
   margin: 0;
   position: relative;
-  background: var(--accent);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
+  background: transparent;
   width: 100%;
-  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .col-figure img {
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
   display: block;
-  /* stepped cutout on TOP-LEFT corner, reveals lima panel behind */
+  /* stepped cutout en top-left: revela el bg de la pagina */
   clip-path: polygon(
     0 22%, 8% 22%, 8% 16%,
     16% 16%, 16% 11%,
@@ -450,116 +489,30 @@ strong { font-weight: 700; }
   );
   transition: transform .5s ease;
 }
-.col-figure:hover img { transform: scale(1.02); }
-.col-figure-portrait { aspect-ratio: 3 / 4; }
+.col-figure-portrait img { aspect-ratio: 3 / 4; }
 .col-figure figcaption {
-  position: absolute;
-  top: 14px;
-  left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
   font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--azul);
-  text-transform: lowercase;
+  letter-spacing: 0.06em;
   font-family: var(--font-mono);
-  z-index: 2;
-  font-weight: 700;
+  text-transform: lowercase;
+  color: var(--fg-soft);
+  padding: 0 4px;
 }
 .col-figure figcaption strong {
-  color: var(--azul);
-  font-size: 18px;
-  letter-spacing: -0.02em;
+  color: var(--accent);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
   text-transform: lowercase;
-  font-weight: 900;
-  line-height: 1;
 }
 .col-figure figcaption span:not(strong) {
-  font-weight: 400;
   font-size: 10px;
-  margin-top: 2px;
-  opacity: 0.7;
-}
-
-/* carousel inside testimonio figure */
-.testimonio-carousel { position: relative; }
-.carousel-slides {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.carousel-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity .35s ease;
-  pointer-events: none;
-}
-.carousel-slide.is-active {
-  opacity: 1;
-  pointer-events: auto;
-}
-.carousel-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  clip-path: polygon(
-    0 22%, 8% 22%, 8% 16%,
-    16% 16%, 16% 11%,
-    24% 11%, 24% 6%,
-    32% 6%, 32% 0,
-    100% 0, 100% 100%, 0 100%
-  );
-}
-.carousel-dots {
-  position: absolute;
-  bottom: 14px;
-  right: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 3;
-  background: var(--accent);
-  padding: 6px 8px;
-  border-radius: 999px;
-}
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border: 1.5px solid var(--azul);
-  background: transparent;
-  border-radius: 50%;
-  padding: 0;
-  cursor: pointer;
-  transition: background .2s;
-}
-.carousel-dot.is-active { background: var(--azul); }
-.carousel-dot:hover:not(.is-active) { background: rgba(43, 45, 66, 0.3); }
-
-/* ============================================================
-   CURSOR brackets (estilo PRADO)
-   ============================================================ */
-.cursor-bracket {
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  line-height: 1;
-  color: var(--accent);
-  font-size: 22px;
-  z-index: 9999;
-  display: none;
-  will-change: transform;
-  transition: transform 0.12s ease-out, font-size 0.18s ease, opacity 0.2s ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .cursor-bracket { display: block; }
-}
-.cursor-bracket.is-hover { font-size: 32px; }
-@media (prefers-reduced-motion: reduce) {
-  .cursor-bracket { display: none; }
+  opacity: 0.75;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .lede {
