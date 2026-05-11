@@ -446,6 +446,20 @@
     }
     .logro.locked:hover::after { opacity: 1; }
 
+    /* ── MOOD ── */
+    .mood-btn {
+      width: 38px; height: 38px; font-size: 1.2rem;
+      background: var(--card-hi); border: 1px solid var(--divider);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, border-color .15s, background .15s;
+    }
+    .mood-btn:hover { transform: scale(1.18); }
+    .mood-btn.selected {
+      border-color: rgba(199,239,0,.5);
+      background: rgba(199,239,0,.08);
+      transform: scale(1.1);
+    }
+
     /* ── NOTAS ── */
     .notes-pad {
       width: 100%; height: 200px;
@@ -513,6 +527,38 @@
     .hist-rate:hover  { background: rgba(237,242,244,.08); border-color: rgba(237,242,244,.25); }
     .hist-rate.active { background: rgba(199,239,0,.1); border-color: rgba(199,239,0,.35); }
 
+    /* ── MINI PLAYER ── */
+    .mini-player {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: var(--azul); border-top: 1px solid rgba(199,239,0,.2);
+      display: flex; align-items: center; gap: 1rem;
+      padding: .6rem 1.5rem;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.25,1,.5,1);
+    }
+    .mini-player.visible { transform: translateY(0); }
+    .mini-waveform {
+      display: flex; align-items: flex-end; gap: 2px; height: 16px; flex-shrink: 0;
+    }
+    .mini-waveform span {
+      width: 3px; background: var(--lima); height: 3px; border-radius: 1px;
+      animation: wbar .45s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * 0.08s);
+    }
+    .mini-track { font-size: .8rem; font-weight: 700; flex: 1; }
+    .mini-meta  { font-family: var(--font-mono); font-size: 10px; color: var(--gris); }
+    .mini-stop  {
+      background: transparent; border: 1px solid rgba(199,239,0,.2);
+      color: var(--lima); font-family: var(--font-mono); font-size: 10px;
+      padding: .35rem .75rem; cursor: pointer; letter-spacing: .04em;
+      transition: background .15s;
+    }
+    .mini-stop:hover { background: rgba(199,239,0,.1); }
+
+    /* push floating btns above player when it's visible */
+    body.player-open .back-top { bottom: calc(1.5rem + 50px); }
+    body.player-open .toast    { bottom: calc(1.5rem + 50px); }
+
     /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
@@ -539,11 +585,43 @@
     .back-top.visible { opacity: 1; transform: translateY(0); }
     .back-top:hover { background: rgba(199,239,0,.18); }
 
+    /* ── MOBILE BOTTOM NAV ── */
+    .mobile-nav {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 140;
+      background: var(--azul); border-top: 1px solid var(--divider);
+      justify-content: space-around; padding: .5rem 0 max(.5rem, env(safe-area-inset-bottom));
+    }
+    .mob-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      background: transparent; border: none; cursor: pointer;
+      padding: .2rem .5rem;
+      color: var(--gris); text-decoration: none;
+      font-family: var(--font-mono); font-size: 8px; letter-spacing: .04em;
+      text-transform: uppercase; transition: color .15s;
+    }
+    .mob-nav-item.active, .mob-nav-item:hover { color: var(--lima); }
+    .mob-nav-ico { font-size: 1rem; line-height: 1; }
+
+    /* ── CONFETTI ── */
+    @keyframes confetti-fall {
+      0%   { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed; top: 0; z-index: 500;
+      pointer-events: none;
+      animation: confetti-fall linear forwards;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 680px) {
       .grid-2, .grid-equal { grid-template-columns: 1fr; }
       .portal-hero { flex-direction: column; }
-      .portal-main { padding: 80px 1rem 4rem; }
+      .portal-main { padding: 80px 1rem 6rem; }
+      .mobile-nav { display: flex; }
+      body.player-open .mobile-nav { bottom: 52px; }
     }
   </style>
 </head>
@@ -623,6 +701,21 @@
     </div>
   </div>
 
+  <!-- MOOD DEL DÍA -->
+  <div class="card reveal" style="padding:1rem 1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span class="card-label" style="margin:0;">&#191;Cómo llegas hoy?</span>
+      <div style="display:flex;gap:.4rem;">
+        <button class="mood-btn" data-mood="tired" title="Cansado">&#128564;</button>
+        <button class="mood-btn" data-mood="think" title="Pensativo">&#129300;</button>
+        <button class="mood-btn" data-mood="ok"    title="Normal">&#128528;</button>
+        <button class="mood-btn" data-mood="happy" title="Con ganas">&#128522;</button>
+        <button class="mood-btn" data-mood="fire"  title="En llamas">&#128293;</button>
+      </div>
+      <span id="mood-msg" style="font-family:var(--font-mono);font-size:10px;color:var(--gris);letter-spacing:.04em;"></span>
+    </div>
+  </div>
+
   <!-- ASISTENCIA -->
   <div class="card reveal" style="padding: 1rem 1.5rem;">
     <div class="card-label" style="margin-bottom:.75rem;">Asistencia &middot; Cohort Mayo 2026</div>
@@ -694,7 +787,10 @@
         <div class="clase-meta-row"><span class="ico">&#9670;</span> 8 alumnos &middot; cupo lleno</div>
         <div class="clase-meta-row"><span class="ico">&#9670;</span> Instructor: Refugee</div>
       </div>
-      <a href="#" class="btn-primary" style="text-align:center; margin-top:auto;">Unirte &nearr;</a>
+      <div style="display:flex;gap:.6rem;margin-top:auto;">
+        <a href="#" class="btn-primary" style="flex:1;text-align:center;">Unirte &nearr;</a>
+        <button class="btn-ghost" id="btn-recordar" style="font-size:11px;padding:.65rem .75rem;" title="Activar recordatorio">&#128276;</button>
+      </div>
     </div>
 
     <!-- NIVEL -->
@@ -830,7 +926,7 @@
   </div>
 
   <!-- ROW 2: Recursos + Wall of Fame -->
-  <div class="grid-equal" id="recursos">
+  <div class="grid-equal" id="recursos" data-section="recursos">
 
     <!-- RECURSOS -->
     <div class="card reveal">
@@ -878,7 +974,7 @@
     </div>
 
     <!-- WALL OF FAME -->
-    <div class="card reveal reveal-delay-1">
+    <div class="card reveal reveal-delay-1" id="wof">
       <div class="card-label">Wall of Fame &middot; Alumnos</div>
       <div class="wof-list">
 
@@ -932,6 +1028,78 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- COMPAÑEROS DEL COHORT -->
+  <div class="card reveal">
+    <div class="card-label">Grupo &middot; Intermedio B &middot; Mayo 2026</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;">
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:rgba(199,239,0,.07);border:1px solid rgba(199,239,0,.2);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--lima);color:var(--azul);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;font-weight:700;">RF</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Refu <span style="color:var(--lima);font-size:9px;">#4</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--lima);">Mod.3 activo</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">AM</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Andrés <span style="color:var(--gris);font-size:9px;">#1</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.4 - Mezcla</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">VC</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Valeria <span style="color:var(--gris);font-size:9px;">#2</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.4 - Mezcla</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">DR</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Diego <span style="color:var(--gris);font-size:9px;">#3</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.3 activo</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">LR</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lucía <span style="color:var(--gris);font-size:9px;">#5</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.2 - Drums</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">MG</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Mario <span style="color:var(--gris);font-size:9px;">#6</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.2 - Drums</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">SH</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sara <span style="color:var(--gris);font-size:9px;">#7</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.1 - DAW</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:var(--card-hi);">
+        <div style="width:30px;height:30px;flex-shrink:0;background:var(--card);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--gris);">JK</div>
+        <div style="min-width:0;">
+          <div style="font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Jorge <span style="color:var(--gris);font-size:9px;">#8</span></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--gris);">Mod.1 - DAW</div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- HISTORIAL DE CLASES -->
@@ -1004,7 +1172,7 @@
   </div>
 
   <!-- BEAT BUILDER PROMO -->
-  <div class="card reveal" style="border-left: 3px solid var(--lima);">
+  <div class="card reveal" id="beat" style="border-left: 3px solid var(--lima);">
     <div class="beat-promo">
       <div class="beat-promo-text">
         <div class="card-label">Practica ahora</div>
@@ -1016,6 +1184,19 @@
         <polygon fill="currentColor" points="717.15 327.12 717.15 232.5 628.57 232.5 628.57 137.89 451.42 137.89 451.42 232.5 362.85 232.5 362.85 327.12 274.27 327.12 274.27 421.73 451.42 421.73 451.42 327.12 540 327.12 628.57 327.12 628.57 421.73 805.73 421.73 805.73 327.12 717.15 327.12"/>
         <polygon fill="currentColor" points="451.43 469.04 274.27 469.04 274.27 563.65 451.43 563.65 451.43 658.27 451.43 752.88 362.85 752.88 362.85 847.5 274.27 847.5 274.27 942.11 451.43 942.11 451.43 847.5 540 847.5 628.57 847.5 628.57 942.11 805.73 942.11 805.73 847.5 717.15 847.5 717.15 752.88 628.58 752.88 628.58 658.27 628.58 563.65 805.73 563.65 805.73 469.04 628.58 469.04 451.43 469.04"/>
       </svg>
+    </div>
+  </div>
+
+  <!-- TIMER DE PRÁCTICA -->
+  <div class="card reveal" style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;padding:1rem 1.5rem;">
+    <div>
+      <div class="card-label" style="margin-bottom:.3rem;">Sesión de práctica</div>
+      <div id="timer-val" style="font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--lima);letter-spacing:.04em;line-height:1;">00:00:00</div>
+      <div id="timer-total" style="font-family:var(--font-mono);font-size:10px;color:var(--gris);margin-top:.3rem;"></div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-shrink:0;">
+      <button class="btn-primary" id="timer-toggle">&#9654; Iniciar</button>
+      <button class="btn-ghost" id="timer-reset" style="font-size:1rem;padding:.65rem .9rem;" title="Reiniciar">&#8635;</button>
     </div>
   </div>
 
@@ -1037,8 +1218,8 @@
         <div class="clase-meta-row"><span class="ico">&#9670;</span> Formato: proyecto FL o Ableton + MP3</div>
         <div class="clase-meta-row"><span class="ico">&#9670;</span> Compartir en el grupo de WhatsApp</div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .8rem;background:rgba(199,239,0,.06);border:1px solid rgba(199,239,0,.15);">
-        <span style="font-family:var(--font-mono);font-size:10px;color:var(--lima);letter-spacing:.06em;">EN PROGRESO</span>
+      <div id="tarea-status" style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .8rem;background:rgba(199,239,0,.06);border:1px solid rgba(199,239,0,.15);">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--lima);letter-spacing:.06em;" id="tarea-estado">EN PROGRESO</span>
         <div style="display:flex;gap:3px;">
           <div style="width:14px;height:4px;background:var(--lima);"></div>
           <div style="width:14px;height:4px;background:var(--lima);"></div>
@@ -1047,6 +1228,7 @@
           <div style="width:14px;height:4px;background:var(--card-hi);border:1px solid var(--divider);"></div>
         </div>
       </div>
+      <button class="btn-ghost" id="tarea-done" style="width:100%;margin-top:.6rem;font-size:11px;">&#10003; Marcar como completada</button>
     </div>
 
     <!-- NOTAS PERSONALES -->
@@ -1059,14 +1241,18 @@
         placeholder="Escala menor armónica: 1 2 b3 4 5 b6 7&#10;Acorde i: Dm  iv: Gm  V: A&#10;..."></textarea>
       <div class="notes-footer">
         <span class="notes-saved" id="notes-saved" style="opacity:0;">&#10003; Guardado</span>
-        <span class="notes-count" id="notes-count">0 / 600</span>
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <button class="notes-expand-btn" id="notes-copy" title="Copiar al portapapeles">COPIAR</button>
+          <button class="notes-expand-btn" id="notes-export" title="Descargar como .txt">TXT</button>
+          <span class="notes-count" id="notes-count">0 / 600</span>
+        </div>
       </div>
     </div>
 
   </div>
 
   <!-- CERTIFICADO -->
-  <div class="card reveal">
+  <div class="card reveal" id="cert">
     <div class="card-label">Tu certificado digital</div>
     <p class="cert-intro">Al terminar cada nivel recibes un certificado descargable con tu nombre. Compártelo en redes - es la prueba de que ya produces de verdad.</p>
 
@@ -1099,12 +1285,74 @@
     </div>
   </div>
 
+  <!-- QUOTE ROTATOR -->
+  <div class="card reveal" style="text-align:center;padding:1.75rem 2rem;background:rgba(199,239,0,.02);">
+    <div id="quote-txt" style="font-size:1rem;font-weight:700;line-height:1.5;color:var(--off);max-width:600px;margin:0 auto .75rem;font-style:italic;"></div>
+    <div id="quote-author" style="font-family:var(--font-mono);font-size:10px;color:var(--gris);letter-spacing:.08em;"></div>
+  </div>
+
+  <!-- PRÓXIMO MÓDULO -->
+  <div class="card reveal" style="opacity:.65;border-style:dashed;">
+    <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+      <div style="width:40px;height:40px;flex-shrink:0;background:var(--card-hi);border:1px solid var(--divider);display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--gris);">04</span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="card-label" style="margin-bottom:.2rem;">Próximo módulo &middot; se desbloquea en ~2 semanas</div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--gris);">Mezcla Básica</div>
+        <div style="font-size:.72rem;color:var(--gris);opacity:.6;margin-top:.2rem;">EQ, compresión, balances, referencia &middot; 3 sesiones</div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--gris);flex-shrink:0;">&#128274; Bloqueado</span>
+    </div>
+  </div>
+
 </main>
+
+<!-- PORTAL FOOTER -->
+<footer style="border-top:1px solid var(--divider);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;max-width:1080px;margin:0 auto 60px;">
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <span style="font-family:var(--font-mono);font-size:9px;color:var(--gris);letter-spacing:.06em;">ATALAYA PORTAL · v1 PROTOTIPO · MAYO 2026</span>
+    <a href="/" style="font-family:var(--font-mono);font-size:9px;color:var(--gris);text-decoration:none;letter-spacing:.05em;transition:color .15s;" onmouseover="this.style.color='var(--lima)'" onmouseout="this.style.color='var(--gris)'">Volver al sitio &nearr;</a>
+    <a href="/beat" style="font-family:var(--font-mono);font-size:9px;color:var(--gris);text-decoration:none;letter-spacing:.05em;transition:color .15s;" onmouseover="this.style.color='var(--lima)'" onmouseout="this.style.color='var(--gris)'">Beat Builder &nearr;</a>
+  </div>
+  <button id="btn-export-data" style="font-family:var(--font-mono);font-size:9px;color:var(--gris);letter-spacing:.06em;background:transparent;border:1px solid var(--divider);padding:.35rem .75rem;cursor:pointer;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='rgba(199,239,0,.3)';this.style.color='var(--lima)'" onmouseout="this.style.borderColor='var(--divider)';this.style.color='var(--gris)'">&#8595; Exportar mis datos</button>
+</footer>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" aria-label="Navegación rápida">
+  <a href="#" class="mob-nav-item active" data-section="top">
+    <span class="mob-nav-ico">&#127968;</span>Inicio
+  </a>
+  <a href="#recursos" class="mob-nav-item" data-section="recursos">
+    <span class="mob-nav-ico">&#128193;</span>Recursos
+  </a>
+  <a href="#wof" class="mob-nav-item" data-section="wof">
+    <span class="mob-nav-ico">&#9733;</span>Fame
+  </a>
+  <a href="#beat" class="mob-nav-item" data-section="beat">
+    <span class="mob-nav-ico">&#9835;</span>Beat
+  </a>
+  <a href="#cert" class="mob-nav-item" data-section="cert">
+    <span class="mob-nav-ico">&#127942;</span>Cert
+  </a>
+</nav>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 <!-- BACK TO TOP -->
 <button class="back-top" id="back-top" aria-label="Volver arriba">&#8593;</button>
+<!-- MINI PLAYER -->
+<div class="mini-player" id="mini-player">
+  <div class="mini-waveform">
+    <span style="--i:0"></span><span style="--i:1"></span>
+    <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
+  </div>
+  <div style="flex:1;min-width:0;">
+    <div class="mini-track" id="mini-track">--</div>
+    <div class="mini-meta" id="mini-meta">--</div>
+  </div>
+  <button class="mini-stop" id="mini-stop">&#9632; Detener</button>
+</div>
 
 <script>
   /* ── CERTIFICADO PDF ── */
@@ -1195,6 +1443,7 @@
     btnDl.style.display = 'inline-block';
     btnStory.style.display = 'inline-block';
     hint.textContent = 'Vista previa lista. Descarga como PDF desde el diálogo de impresión.';
+    launchConfetti();
   }
 
   document.getElementById('btn-gen').addEventListener('click', generate);
@@ -1498,15 +1747,28 @@
       timerID = setTimeout(function() { schedule(b); }, 25);
     }
 
+    /* mini player refs */
+    var miniPlayer = document.getElementById('mini-player');
+    var miniTrack  = document.getElementById('mini-track');
+    var miniMeta   = document.getElementById('mini-meta');
+    var miniStop   = document.getElementById('mini-stop');
+
+    var TRACK_INFO = [
+      { name: 'Sin Mirar Atrás', meta: 'Andrés M. · Reggaeton · 95 BPM' },
+      { name: 'Lluvia de Noche',  meta: 'Valeria C. · R&B · 78 BPM' },
+      { name: 'Más Allá del Break', meta: 'Diego R. · Trap · 140 BPM' }
+    ];
+
     function stopAll() {
       clearTimeout(timerID); timerID = null;
-      /* update all UI */
       document.querySelectorAll('.wof-play').forEach(function(btn) {
         btn.textContent = '▶'; btn.classList.remove('playing');
       });
       document.querySelectorAll('.wof-wave').forEach(function(w) {
         w.classList.remove('playing');
       });
+      if (miniPlayer) { miniPlayer.classList.remove('visible'); }
+      document.body.classList.remove('player-open');
     }
 
     function toggle(idx) {
@@ -1520,7 +1782,18 @@
       var wave = document.getElementById('wof-wave-' + idx);
       if (btn)  { btn.textContent = '■'; btn.classList.add('playing'); }
       if (wave) wave.classList.add('playing');
+      /* mini player */
+      if (miniPlayer && TRACK_INFO[idx]) {
+        miniTrack.textContent = TRACK_INFO[idx].name;
+        miniMeta.textContent  = TRACK_INFO[idx].meta;
+        miniPlayer.classList.add('visible');
+        document.body.classList.add('player-open');
+      }
     }
+
+    if (miniStop) miniStop.addEventListener('click', function() {
+      stopAll(); activeCard = -1;
+    });
 
     document.querySelectorAll('.wof-play[data-card]').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -1530,13 +1803,37 @@
   })();
 
   /* ── LOGROS CLICK ── */
+  function playDing(unlocked) {
+    try {
+      var ac = new (window.AudioContext || window.webkitAudioContext)();
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      if (unlocked) {
+        o.type = 'sine';
+        o.frequency.setValueAtTime(880, ac.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1320, ac.currentTime + 0.08);
+        g.gain.setValueAtTime(0.18, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.4);
+        o.start(); o.stop(ac.currentTime + 0.42);
+      } else {
+        o.type = 'square';
+        o.frequency.setValueAtTime(220, ac.currentTime);
+        g.gain.setValueAtTime(0.08, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.12);
+        o.start(); o.stop(ac.currentTime + 0.14);
+      }
+    } catch(e) {}
+  }
+
   document.querySelectorAll('.logro').forEach(function(el) {
     el.addEventListener('click', function() {
-      var cls = el.classList.contains('unlocked') ? 'pop-anim' : 'shake-anim';
+      var unlocked = el.classList.contains('unlocked');
+      var cls = unlocked ? 'pop-anim' : 'shake-anim';
       el.classList.remove('pop-anim', 'shake-anim');
-      void el.offsetWidth; /* reflow para reiniciar */
+      void el.offsetWidth;
       el.classList.add(cls);
       el.addEventListener('animationend', function() { el.classList.remove(cls); }, { once: true });
+      playDing(unlocked);
     });
   });
 
@@ -1611,6 +1908,28 @@
         clearTimeout(timer);
         save();
       }
+    });
+
+    /* Copiar al portapapeles */
+    var copyBtn = document.getElementById('notes-copy');
+    if (copyBtn) copyBtn.addEventListener('click', function() {
+      if (!pad.value.trim()) { showToast('No hay nada que copiar'); return; }
+      navigator.clipboard ? navigator.clipboard.writeText(pad.value).then(function() {
+        showToast('&#10003; Notas copiadas al portapapeles');
+      }) : (pad.select(), document.execCommand('copy'), showToast('&#10003; Copiado'));
+    });
+
+    /* Exportar como TXT */
+    var expBtn = document.getElementById('notes-export');
+    if (expBtn) expBtn.addEventListener('click', function() {
+      if (!pad.value.trim()) { showToast('No hay nada que exportar'); return; }
+      var blob = new Blob([pad.value], { type: 'text/plain' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url; a.download = 'Notas Atalaya - Módulo 3.txt';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      showToast('&#10003; Notas descargadas como .txt');
     });
   })();
 
@@ -1878,6 +2197,246 @@
         showToast(emoji);
       });
     });
+  })();
+
+  /* ── CONFETTI ── */
+  function launchConfetti() {
+    var colors = ['#c7ef00', '#edf2f4', '#9bbf20', 'rgba(199,239,0,0.6)'];
+    var n = 40;
+    for (var i = 0; i < n; i++) {
+      (function(idx) {
+        setTimeout(function() {
+          var el = document.createElement('div');
+          el.className = 'confetti-piece';
+          var size = 6 + Math.random() * 10;
+          el.style.cssText = [
+            'width:' + size + 'px',
+            'height:' + size + 'px',
+            'left:' + (Math.random() * 100) + 'vw',
+            'background:' + colors[Math.floor(Math.random() * colors.length)],
+            'animation-duration:' + (1.2 + Math.random() * 1.4) + 's',
+            'animation-delay:' + (Math.random() * 0.4) + 's'
+          ].join(';');
+          document.body.appendChild(el);
+          el.addEventListener('animationend', function() { el.remove(); });
+        }, idx * 30);
+      })(i);
+    }
+  }
+
+  /* ── EXPORTAR DATOS ── */
+  (function() {
+    var btn = document.getElementById('btn-export-data');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      var data = {
+        exported: new Date().toISOString(),
+        usuario: 'Refu · NIV.2 Intermedio',
+        notes_m3: localStorage.getItem('atalaya-notes-m3') || '',
+        practice_secs: parseInt(localStorage.getItem('atalaya-practice-secs') || '0'),
+        tarea_m3_done: localStorage.getItem('atalaya-tarea-m3') === '1',
+        moods: {}, ratings: {}
+      };
+      Object.keys(localStorage).forEach(function(k) {
+        if (k.startsWith('atalaya-mood-'))  data.moods[k.replace('atalaya-mood-',  '')] = localStorage.getItem(k);
+        if (k.startsWith('atalaya-rate-'))  data.ratings[k.replace('atalaya-rate-', '')] = localStorage.getItem(k);
+      });
+      var mins = Math.round(data.practice_secs / 60);
+      data.practice_min = mins;
+      var json = JSON.stringify(data, null, 2);
+      var blob = new Blob([json], { type: 'application/json' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url;
+      a.download = 'Datos Atalaya · Refu · ' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      showToast('&#10003; Datos exportados como JSON');
+    });
+  })();
+
+  /* ── QUOTE ROTATOR ── */
+  (function() {
+    var QUOTES = [
+      { txt: 'Un beat terminado siempre va a superar a un beat perfecto en tu cabeza.', by: 'REFUGEE · Fundador Atalaya' },
+      { txt: 'No esperes sentirte inspirado. Pon la sesión, aprieta play, y la inspiración llega sola.', by: 'REFUGEE · Atalaya' },
+      { txt: 'La mayoría falla porque deja de aprender antes de que las cosas se pongan buenas.', by: 'REFUGEE · Atalaya' },
+      { txt: 'Un buen beat no necesita muchos elementos. Solo los correctos en el lugar correcto.', by: 'REFUGEE · Fundador Atalaya' },
+      { txt: 'Aprende las reglas como un profesional para romperlas como un artista.', by: 'PABLO PICASSO' },
+      { txt: 'La creatividad es inteligencia divirtiéndose.', by: 'ALBERT EINSTEIN' },
+      { txt: 'El talento más raro no es el de producir hits. Es el de seguir produciendo cuando nadie está escuchando.', by: 'REFUGEE · Atalaya' },
+      { txt: 'Tu oído es tu herramienta más importante. Entrénalo tanto como tu DAW.', by: 'REFUGEE · Atalaya' }
+    ];
+    var txtEl = document.getElementById('quote-txt');
+    var byEl  = document.getElementById('quote-author');
+    if (!txtEl) return;
+    var q = QUOTES[new Date().getDate() % QUOTES.length];
+    txtEl.textContent = '"' + q.txt + '"';
+    byEl.textContent  = '— ' + q.by;
+  })();
+
+  /* ── TAREA COMPLETADA ── */
+  (function() {
+    var btn    = document.getElementById('tarea-done');
+    var estado = document.getElementById('tarea-estado');
+    var status = document.getElementById('tarea-status');
+    if (!btn) return;
+    var KEY = 'atalaya-tarea-m3';
+
+    function markDone() {
+      btn.innerHTML = '&#10003; Tarea entregada';
+      btn.disabled = true;
+      btn.style.color = 'var(--lima)';
+      btn.style.borderColor = 'rgba(199,239,0,.3)';
+      if (estado) { estado.textContent = 'ENTREGADA'; }
+      if (status) { status.style.background = 'rgba(199,239,0,.1)'; }
+      showToast('&#10003; Tarea marcada como completada - ¡buen trabajo!');
+      launchConfetti();
+    }
+
+    if (localStorage.getItem(KEY) === '1') markDone();
+
+    btn.addEventListener('click', function() {
+      localStorage.setItem(KEY, '1');
+      markDone();
+    });
+  })();
+
+  /* ── MOOD TRACKER ── */
+  (function() {
+    var TODAY = new Date().toISOString().slice(0, 10);
+    var KEY   = 'atalaya-mood-' + TODAY;
+    var saved = localStorage.getItem(KEY);
+    var msgEl = document.getElementById('mood-msg');
+    var MSGS  = {
+      tired: 'Dale suave hoy, pero dale.',
+      think: 'Modo reflexivo - perfecta para componer.',
+      ok:    'Modo normal. Suficiente para producir.',
+      happy: '¡Buena vibra! A hacer beats.',
+      fire:  '¡Modo bestia! Exprímelo todo hoy.'
+    };
+
+    document.querySelectorAll('.mood-btn').forEach(function(btn) {
+      if (btn.dataset.mood === saved) {
+        btn.classList.add('selected');
+        if (msgEl) msgEl.textContent = MSGS[saved] || '';
+      }
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.mood-btn').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        localStorage.setItem(KEY, btn.dataset.mood);
+        if (msgEl) msgEl.textContent = MSGS[btn.dataset.mood] || '';
+        showToast(MSGS[btn.dataset.mood] || '');
+      });
+    });
+  })();
+
+  /* ── TIMER DE PRÁCTICA ── */
+  (function() {
+    var valEl    = document.getElementById('timer-val');
+    var totalEl  = document.getElementById('timer-total');
+    var toggleEl = document.getElementById('timer-toggle');
+    var resetEl  = document.getElementById('timer-reset');
+    if (!valEl || !toggleEl) return;
+
+    var interval = null, secs = 0, running = false;
+
+    function fmt(s) {
+      return String(Math.floor(s / 3600)).padStart(2, '0') + ':' +
+             String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' +
+             String(s % 60).padStart(2, '0');
+    }
+
+    function updateTotal() {
+      var t = parseInt(localStorage.getItem('atalaya-practice-secs') || '0');
+      if (t > 0) {
+        var h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60);
+        totalEl.textContent = 'Total acumulado: ' + (h > 0 ? h + 'h ' : '') + m + ' min';
+      }
+    }
+    updateTotal();
+
+    toggleEl.addEventListener('click', function() {
+      if (running) {
+        clearInterval(interval); interval = null; running = false;
+        toggleEl.innerHTML = '&#9654; Continuar';
+        toggleEl.style.cssText = 'background:transparent;color:var(--off);border:1px solid var(--divider);font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.06em;padding:.65rem 1.3rem;cursor:pointer;';
+        if (secs > 0) {
+          var prev = parseInt(localStorage.getItem('atalaya-practice-secs') || '0');
+          localStorage.setItem('atalaya-practice-secs', prev + secs);
+          var mins = Math.round(secs / 60);
+          showToast('Sesión de ' + mins + ' min guardada &#10003;');
+          updateTotal();
+        }
+      } else {
+        running = true;
+        toggleEl.innerHTML = '&#9646;&#9646; Pausar';
+        toggleEl.style.cssText = '';  /* restore .btn-primary from HTML */
+        interval = setInterval(function() { secs++; valEl.textContent = fmt(secs); }, 1000);
+      }
+    });
+
+    resetEl.addEventListener('click', function() {
+      clearInterval(interval); interval = null; running = false;
+      secs = 0; valEl.textContent = '00:00:00';
+      toggleEl.innerHTML = '&#9654; Iniciar';
+      toggleEl.style.cssText = '';
+    });
+  })();
+
+  /* ── RECORDATORIO DE CLASE ── */
+  (function() {
+    var btn = document.getElementById('btn-recordar');
+    if (!btn) return;
+    var TARGET = new Date(2026, 4, 14, 19, 0, 0); /* 14 mayo 7 PM */
+    var REMIND_MS = 15 * 60 * 1000; /* 15 min antes */
+    var remindSet = false;
+
+    btn.addEventListener('click', function() {
+      if (remindSet) {
+        showToast('Recordatorio ya activado para las 6:45 PM');
+        return;
+      }
+
+      /* Si Notifications API disponible, pedir permiso */
+      if ('Notification' in window) {
+        Notification.requestPermission().then(function(perm) {
+          if (perm === 'granted') {
+            scheduleReminder();
+          } else {
+            /* fallback: usar alert en el momento */
+            scheduleReminder(true);
+            showToast('Recordatorio activado (requiere tener la página abierta)');
+          }
+        });
+      } else {
+        scheduleReminder(true);
+        showToast('Recordatorio activado (requiere tener la página abierta)');
+      }
+    });
+
+    function scheduleReminder(alertFallback) {
+      var msUntilRemind = TARGET - REMIND_MS - Date.now();
+      if (msUntilRemind < 0) {
+        showToast('La clase empieza en menos de 15 min - ¡Únete!');
+        return;
+      }
+      remindSet = true;
+      btn.textContent = '🔔✓';
+      btn.style.borderColor = 'rgba(199,239,0,.35)';
+      showToast('Recordatorio activado - 15 min antes de la clase');
+
+      setTimeout(function() {
+        if (alertFallback) {
+          alert('¡Atalaya! Tu clase empieza en 15 minutos. ¡Prepárate!');
+        } else if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Atalaya - Clase en 15 min', {
+            body: 'Módulo 3 · Melodías y Armonía · Zoom a las 7:00 PM',
+            icon: '/assets/logo/favicon.png'
+          });
+        }
+      }, msUntilRemind);
+    }
   })();
 
   /* ── ATAJOS DE TECLADO GLOBALES ── */
