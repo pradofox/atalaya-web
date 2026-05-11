@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal · Atalaya</title>
+  <link rel="icon" href="/assets/logo/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+  <style>
+    /* ── portal-only styles (design tokens inherited from style.css) ── */
+    html { scroll-padding-top: 72px; }
+
+    /* ── NAV extras ── */
+    .nav-brand { display: flex; align-items: center; gap: .75rem; }
+
+    .nav-tag {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--lima);
+      background: rgba(199,239,0,.08);
+      border: 1px solid rgba(199,239,0,.25);
+      padding: 3px 8px; letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .nav-user { display: flex; align-items: center; gap: .75rem; }
+    .user-info { text-align: right; }
+    .user-name { font-size: .85rem; font-weight: 700; line-height: 1.2; }
+    .user-level {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--lima); letter-spacing: .04em;
+    }
+    .user-avatar {
+      width: 34px; height: 34px; flex-shrink: 0;
+      background: var(--lima); color: var(--azul);
+      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── LAYOUT ── */
+    .portal-main {
+      max-width: 1080px; margin: 0 auto;
+      padding: 90px 1.5rem 5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--divider);
+      padding: 1.5rem;
+    }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; color: var(--gris);
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+
+    /* ── HERO ── */
+    .portal-hero {
+      background: var(--card-hi);
+      border: 1px solid var(--divider);
+      border-left: 3px solid var(--lima);
+      padding: 1.75rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; flex-wrap: wrap;
+    }
+
+    .hero-text h1 {
+      font-size: 1.4rem; font-weight: 800; line-height: 1.2;
+      margin-bottom: .4rem;
+    }
+    .hero-text h1 span { color: var(--lima); }
+    .hero-sub { font-size: .82rem; color: var(--gris); }
+    .hero-sub strong { color: var(--off); }
+
+    .hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; flex-shrink: 0; }
+
+    .btn-primary {
+      background: var(--lima); color: var(--azul);
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      border: none; padding: .65rem 1.3rem; cursor: pointer;
+      text-decoration: none; display: inline-block;
+      transition: opacity .15s;
+    }
+    .btn-primary:hover { opacity: .85; }
+
+    .btn-ghost {
+      background: transparent; color: var(--off);
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      border: 1px solid var(--divider); padding: .65rem 1.3rem; cursor: pointer;
+      text-decoration: none; display: inline-block;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-ghost:hover { border-color: var(--lima); color: var(--lima); }
+
+    /* ── GRIDS ── */
+    .grid-2     { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.25rem; }
+    .grid-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+    /* ── PROXIMA CLASE ── */
+    .prox-card { display: flex; flex-direction: column; gap: 1rem; }
+
+    .live-badge { display: inline-flex; align-items: center; gap: .45rem; }
+    .live-dot {
+      width: 7px; height: 7px; background: var(--lima);
+      animation: blink 2s ease infinite;
+    }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+    .live-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--lima); letter-spacing: .06em;
+    }
+
+    .clase-fecha { font-size: 1.05rem; font-weight: 800; line-height: 1.35; margin-bottom: .2rem; }
+    .clase-modulo { font-family: var(--font-mono); font-size: 11px; color: var(--gris); }
+
+    .clase-meta { display: flex; flex-direction: column; gap: .3rem; }
+    .clase-meta-row {
+      font-size: .78rem; color: var(--gris);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .clase-meta-row .ico { color: var(--lima); }
+
+    /* ── NIVEL / PROGRESO ── */
+    .nivel-steps {
+      display: flex; align-items: flex-start;
+      margin-bottom: 1.5rem; position: relative;
+    }
+    .nivel-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+    .nivel-step:not(:last-child)::after {
+      content: '';
+      position: absolute; top: 15px; left: 50%; width: 100%; height: 2px;
+      background: var(--divider); z-index: 0;
+    }
+    .nivel-step.done:not(:last-child)::after { background: var(--lima); }
+
+    .nivel-icon {
+      width: 32px; height: 32px; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 10px;
+      margin-bottom: .55rem; position: relative;
+    }
+    .nivel-step.done .nivel-icon   { background: var(--lima); color: var(--azul); }
+    .nivel-step.active .nivel-icon {
+      background: transparent; border: 2px solid var(--lima); color: var(--lima);
+      box-shadow: 0 0 14px rgba(199,239,0,.25);
+    }
+    .nivel-step.locked .nivel-icon { background: var(--card-hi); color: var(--gris); border: 1px solid var(--divider); }
+
+    .nivel-name {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .06em; color: var(--gris); text-align: center;
+    }
+    .nivel-step.done .nivel-name   { color: var(--lima); }
+    .nivel-step.active .nivel-name { color: var(--off); }
+
+    /* XP bar */
+    .xp-label-row { display: flex; justify-content: space-between; margin-bottom: .4rem; }
+    .xp-title { font-family: var(--font-mono); font-size: 10px; color: var(--off); letter-spacing: .04em; }
+    .xp-count { font-family: var(--font-mono); font-size: 10px; color: var(--lima); }
+    .xp-bar {
+      height: 10px; background: var(--card-hi);
+      border: 1px solid rgba(199,239,0,.15); margin-bottom: 1.25rem;
+    }
+    .xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #9bbf20, var(--lima));
+      position: relative; transition: none;
+    }
+    .xp-fill.xp-go { transition: width 1.1s cubic-bezier(0.25, 1, 0.5, 1); }
+    .xp-fill::after {
+      content: ''; position: absolute; right: -1px; top: -2px;
+      width: 3px; height: 14px; background: #fff; opacity: .5;
+    }
+
+    /* Modulos */
+    .modulos-list { display: flex; flex-direction: column; gap: .45rem; }
+    .modulo-item {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .65rem .9rem; background: var(--card-hi);
+      border-left: 2px solid transparent; transition: border-color .15s;
+    }
+    .modulo-item.done   { border-left-color: var(--lima); }
+    .modulo-item.active { border-left-color: var(--lima); background: rgba(199,239,0,.05); }
+    .modulo-item.locked { opacity: .38; }
+
+    .mod-num { font-family: var(--font-mono); font-size: 11px; color: var(--gris); width: 18px; flex-shrink: 0; }
+    .modulo-item.done .mod-num,
+    .modulo-item.active .mod-num { color: var(--lima); }
+
+    .mod-name   { flex: 1; font-size: .8rem; font-weight: 600; }
+    .mod-status { font-family: var(--font-mono); font-size: 11px; color: var(--gris); }
+    .modulo-item.done .mod-status   { color: var(--lima); }
+    .modulo-item.active .mod-status { color: var(--off); }
+
+    /* ── RECURSOS ── */
+    .recursos-list { display: flex; flex-direction: column; gap: .5rem; }
+    .recurso-item {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .75rem .9rem; background: var(--card-hi);
+      transition: background .15s; cursor: default;
+    }
+    .recurso-item:hover { background: rgba(237,242,244,.12); }
+    .recurso-ico  { font-size: 1.1rem; flex-shrink: 0; }
+    .recurso-info { flex: 1; min-width: 0; }
+    .recurso-name { font-size: .82rem; font-weight: 600; line-height: 1.3; }
+    .recurso-sub  { font-size: .68rem; color: var(--gris); }
+    .recurso-action {
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      flex-shrink: 0; text-decoration: none;
+    }
+    .recurso-action.live  { color: var(--lima); transition: opacity .15s; }
+    .recurso-action.live:hover { opacity: .7; }
+    .recurso-action.soon  { color: var(--gris); }
+
+    /* ── WALL OF FAME ── */
+    .wof-list { display: flex; flex-direction: column; gap: .5rem; }
+    .wof-card {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .7rem .9rem; background: var(--card-hi);
+    }
+    .wof-avatar {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: var(--card); border: 1px solid var(--divider);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 11px; color: var(--lima);
+    }
+    .wof-info  { flex: 1; min-width: 0; }
+    .wof-track {
+      font-size: .82rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wof-meta { font-size: .68rem; color: var(--gris); }
+    .wof-play {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: rgba(199,239,0,.08); border: 1px solid rgba(199,239,0,.25);
+      color: var(--lima); display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; cursor: pointer; transition: background .15s;
+    }
+    .wof-play:hover { background: rgba(199,239,0,.18); }
+    .wof-card.placeholder {
+      background: transparent; border: 1px dashed rgba(237,242,244,.08); opacity: .45;
+    }
+
+    /* ── CERTIFICADO ── */
+    .cert-intro { font-size: .82rem; color: var(--gris); margin-bottom: 1.25rem; max-width: 520px; }
+
+    .cert-form {
+      display: flex; gap: .75rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem; align-items: flex-end;
+    }
+    .cert-field { display: flex; flex-direction: column; gap: .4rem; }
+    .cert-field-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--gris); letter-spacing: .08em; text-transform: uppercase;
+    }
+    .cert-input {
+      background: var(--card-hi); border: 1px solid var(--divider);
+      color: var(--off); font-family: var(--font-sans);
+      font-size: .9rem; padding: .6rem .9rem; width: 240px;
+      outline: none; transition: border-color .15s;
+    }
+    .cert-input:focus { border-color: rgba(199,239,0,.4); }
+    .cert-select {
+      background: var(--card-hi); border: 1px solid var(--divider);
+      color: var(--off); font-family: var(--font-mono);
+      font-size: 11px; padding: .6rem .9rem; outline: none; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .cert-select:focus { border-color: rgba(199,239,0,.4); }
+
+    .cert-preview-wrap {
+      position: relative; background: var(--card-hi);
+      margin-bottom: 1rem; min-height: 200px;
+    }
+    .cert-preview-wrap iframe {
+      display: block; width: 100%; border: none;
+      aspect-ratio: 297 / 210; /* A4 horizontal */
+    }
+    .cert-ph {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--gris); letter-spacing: .08em;
+      text-align: center; line-height: 2.2; pointer-events: none;
+    }
+
+    .cert-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    .cert-hint { font-size: .75rem; color: var(--gris); }
+
+    /* ── LOGROS ── */
+    .logros-sep { height: 1px; background: var(--divider); margin: 1.4rem 0 1rem; }
+    .logros-grid { display: flex; gap: .25rem; flex-wrap: wrap; }
+    .logro {
+      display: flex; flex-direction: column; align-items: center; gap: .45rem;
+      padding: .6rem .4rem; min-width: 54px; text-align: center;
+    }
+    .logro-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .logro-icon svg { width: 32px; height: 32px; display: block; shape-rendering: crispEdges; }
+    .logro-label {
+      font-family: var(--font-mono); font-size: 8px; letter-spacing: .05em;
+      text-transform: uppercase; line-height: 1.35; color: var(--gris); max-width: 58px;
+    }
+    .logro.unlocked .logro-icon { color: var(--lima); }
+    .logro.unlocked .logro-label { color: var(--off); }
+    .logro.locked { opacity: .25; }
+    .logro.locked .logro-icon { color: var(--gris); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .08s; }
+    .reveal-delay-2 { transition-delay: .16s; }
+
+    /* ── COUNTDOWN ── */
+    .clase-countdown {
+      display: flex; align-items: baseline; gap: .5rem;
+      padding: .6rem .75rem;
+      background: rgba(199,239,0,.05);
+      border: 1px solid rgba(199,239,0,.15);
+      margin-top: .25rem;
+    }
+    .countdown-label { font-family: var(--font-mono); font-size: 10px; color: var(--gris); letter-spacing: .06em; text-transform: uppercase; }
+    .countdown-val   { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--lima); letter-spacing: .04em; }
+    .countdown-live  { font-size: 11px; font-weight: 700; color: var(--lima); animation: blink 1s ease infinite; }
+
+    /* ── WOF AUDIO ── */
+    .wof-wave {
+      display: flex; align-items: flex-end; gap: 2px;
+      height: 20px; width: 28px; flex-shrink: 0;
+    }
+    .wof-wave span {
+      flex: 1; background: var(--lima); height: 3px;
+      border-radius: 1px; transition: height .1s ease;
+    }
+    .wof-wave.playing span {
+      animation: wbar .45s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * 0.09s);
+    }
+    @keyframes wbar { from { height: 3px; } to { height: 20px; } }
+    .wof-play { transition: background .15s, color .15s; }
+    .wof-play.playing {
+      background: rgba(199,239,0,.2);
+      color: var(--lima);
+    }
+
+    /* ── HISTORIAL ── */
+    .historial-list { display: flex; flex-direction: column; gap: .35rem; }
+    .historial-item {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .65rem .9rem; background: var(--card-hi);
+      border-left: 2px solid var(--lima);
+      transition: background .15s;
+    }
+    .historial-item:hover { background: rgba(237,242,244,.1); }
+    .historial-item--active { background: rgba(199,239,0,.05); }
+    .historial-info { flex: 1; min-width: 0; }
+    .historial-titulo { font-size: .82rem; font-weight: 600; line-height: 1.3; }
+    .historial-meta   { font-size: .68rem; color: var(--gris); margin-top: .15rem; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--divider);
+      border: 1px solid var(--divider);
+    }
+    .stat-item {
+      background: var(--card);
+      padding: .9rem 1rem;
+      display: flex; flex-direction: column; gap: .2rem;
+    }
+    .stat-val  { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; color: var(--lima); line-height: 1; }
+    .stat-label { font-family: var(--font-mono); font-size: 9px; color: var(--gris); letter-spacing: .06em; text-transform: uppercase; }
+    @media (max-width: 580px) { .stats-bar { grid-template-columns: 1fr 1fr; } }
+
+    /* ── BEAT PROMO CARD ── */
+    .beat-promo {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 2rem;
+    }
+    .beat-promo-text { flex: 1; }
+    .beat-promo-text h3 { font-size: 1.5rem; font-weight: 900; line-height: 1.1; margin: .3rem 0 .6rem; }
+    .beat-promo-text h3 em { color: var(--lima); font-style: normal; }
+    .beat-promo-text p { font-size: .82rem; color: var(--gris); max-width: 380px; line-height: 1.6; margin-bottom: 1rem; }
+    .beat-promo-char { width: 88px; height: 88px; flex-shrink: 0; color: var(--lima); opacity: .55; }
+    @media (max-width: 520px) { .beat-promo { flex-direction: column; } .beat-promo-char { display: none; } }
+
+    /* ── LOGROS MICROINTERACCIONES ── */
+    .logro { cursor: pointer; }
+    .logro.unlocked { transition: transform .15s ease; }
+    .logro.unlocked:hover { transform: scale(1.12); }
+    .logro.unlocked:hover .logro-icon svg { filter: drop-shadow(0 0 8px rgba(199,239,0,.75)); }
+    .logro.unlocked:hover .logro-label { color: var(--lima); transition: color .15s; }
+    .logro.unlocked:active { transform: scale(0.9); }
+    .logro.locked { cursor: not-allowed; }
+
+    @keyframes logro-pop {
+      0%   { transform: scale(1); }
+      25%  { transform: scale(.8); }
+      60%  { transform: scale(1.25); }
+      82%  { transform: scale(.97); }
+      100% { transform: scale(1); }
+    }
+    @keyframes logro-shine {
+      0%,100% { filter: drop-shadow(0 0 0px rgba(199,239,0,0)); }
+      50%     { filter: drop-shadow(0 0 12px rgba(199,239,0,1)); }
+    }
+    @keyframes logro-shake {
+      0%,100% { transform: translateX(0) rotate(0deg); }
+      18%     { transform: translateX(-5px) rotate(-3deg); }
+      36%     { transform: translateX(5px)  rotate(3deg); }
+      54%     { transform: translateX(-3px) rotate(-2deg); }
+      72%     { transform: translateX(3px)  rotate(2deg); }
+    }
+    .logro.pop-anim { animation: logro-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
+    .logro.pop-anim .logro-icon svg { animation: logro-shine .45s ease both; }
+    .logro.shake-anim { animation: logro-shake .38s ease both; }
+
+    /* Tooltip para logros bloqueados */
+    .logro.locked { position: relative; }
+    .logro.locked::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--azul-2, #1f2133); color: var(--gris);
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: .04em;
+      padding: 4px 10px; white-space: nowrap;
+      border: 1px solid var(--divider);
+      pointer-events: none; opacity: 0;
+      transition: opacity .15s; z-index: 10;
+    }
+    .logro.locked:hover::after { opacity: 1; }
+
+    /* ── NOTAS ── */
+    .notes-pad {
+      width: 100%; height: 200px;
+      background: rgba(237,242,244,.03);
+      border: 1px solid var(--divider);
+      color: var(--off);
+      font-family: var(--font-mono);
+      font-size: .78rem; line-height: 1.7;
+      padding: .9rem 1rem;
+      resize: vertical; outline: none;
+      transition: border-color .15s;
+      margin-bottom: .6rem;
+    }
+    .notes-pad:focus { border-color: rgba(199,239,0,.3); }
+    .notes-pad::placeholder { color: rgba(141,153,174,.35); }
+    .notes-footer {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .notes-saved {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--lima); letter-spacing: .06em;
+      transition: opacity .4s;
+    }
+    .notes-count {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--gris); letter-spacing: .04em;
+      transition: color .15s;
+    }
+    .notes-expand-btn {
+      background: transparent; border: 1px solid var(--divider);
+      color: var(--gris); font-size: .7rem; padding: 2px 7px;
+      cursor: pointer; line-height: 1;
+      transition: border-color .15s, color .15s;
+      font-family: var(--font-mono); letter-spacing: .04em;
+    }
+    .notes-expand-btn:hover { border-color: var(--lima); color: var(--lima); }
+    .notes-pad.expanded { height: 380px; }
+
+    /* ── ASISTENCIA ── */
+    .attend-strip { display: flex; gap: 6px; flex-wrap: wrap; }
+    .attend-week {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; min-width: 80px;
+    }
+    .attend-label { font-family: var(--font-mono); font-size: 9px; color: var(--gris); letter-spacing: .05em; }
+    .attend-dots { display: flex; gap: 3px; }
+    .attend-dot {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 8px;
+    }
+    .attend-dot.ok   { background: var(--lima); color: var(--azul); font-weight: 700; }
+    .attend-dot.miss { background: rgba(237,242,244,.06); color: var(--gris); border: 1px solid var(--divider); }
+    .attend-dot.next { background: transparent; border: 1px dashed rgba(199,239,0,.3); color: rgba(199,239,0,.4); }
+
+    /* ── HISTORIAL RATING ── */
+    .historial-rating { display: flex; gap: .3rem; flex-shrink: 0; }
+    .hist-rate {
+      background: transparent; border: 1px solid var(--divider);
+      color: var(--gris); font-size: .8rem;
+      width: 28px; height: 28px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .hist-rate:hover  { background: rgba(237,242,244,.08); border-color: rgba(237,242,244,.25); }
+    .hist-rate.active { background: rgba(199,239,0,.1); border-color: rgba(199,239,0,.35); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
+      background: var(--azul); border: 1px solid rgba(199,239,0,.4);
+      color: var(--off); font-family: var(--font-mono);
+      font-size: 11px; letter-spacing: .05em;
+      padding: .6rem 1.1rem;
+      transform: translateY(12px); opacity: 0;
+      transition: transform .25s cubic-bezier(.25,1,.5,1), opacity .25s;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── BACK TO TOP ── */
+    .back-top {
+      position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 200;
+      width: 36px; height: 36px;
+      background: rgba(199,239,0,.07); border: 1px solid rgba(199,239,0,.2);
+      color: var(--lima); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; transform: translateY(8px);
+      transition: opacity .25s, transform .25s, background .15s;
+    }
+    .back-top.visible { opacity: 1; transform: translateY(0); }
+    .back-top:hover { background: rgba(199,239,0,.18); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .grid-2, .grid-equal { grid-template-columns: 1fr; }
+      .portal-hero { flex-direction: column; }
+      .portal-main { padding: 80px 1rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <a href="/" class="nav-logo" aria-label="Atalaya - inicio">
+      <svg class="nav-mark" viewBox="140 355 510 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g fill="currentColor">
+          <polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>
+          <polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>
+          <polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>
+          <polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>
+          <polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>
+          <polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>
+          <polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>
+        </g>
+      </svg>
+    </a>
+    <span class="nav-tag">PORTAL</span>
+  </div>
+  <div class="nav-user">
+    <div class="user-info">
+      <div class="user-name">Refu</div>
+      <div class="user-level">NIV.2 &middot; INTERMEDIO</div>
+    </div>
+    <div class="user-avatar">RF</div>
+  </div>
+</nav>
+
+<main class="portal-main">
+
+  <!-- HERO -->
+  <div class="portal-hero reveal">
+    <div class="hero-text">
+      <h1>Bienvenido de vuelta, <span>Refu.</span></h1>
+      <p class="hero-sub">Siguiente sesión: <strong>Mie. 14 de Mayo &middot; 7:00 PM</strong> &middot; Módulo 3 - Melodías</p>
+    </div>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Entrar a Zoom &nearr;</a>
+      <a href="#recursos" class="btn-ghost">Ver recursos</a>
+      <button class="btn-ghost" id="btn-share-prog" title="Generar imagen de progreso">&#8599; Compartir progreso</button>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar reveal">
+    <div class="stat-item">
+      <span class="stat-val" id="stat-horas">0</span>
+      <span class="stat-label">Hrs de clase</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-beats">0</span>
+      <span class="stat-label">Beats hechos</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-racha">0</span>
+      <span class="stat-label">Sem. seguidas</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">#4</span>
+      <span class="stat-label">Del grupo</span>
+    </div>
+  </div>
+
+  <!-- PRACTICA DEL DIA -->
+  <div class="card reveal" style="background:rgba(199,239,0,.03);border-color:rgba(199,239,0,.18);padding:1rem 1.5rem;">
+    <div style="display:flex;align-items:flex-start;gap:1rem;">
+      <div style="font-size:1.3rem;flex-shrink:0;line-height:1.3;">&#9889;</div>
+      <div style="flex:1;min-width:0;">
+        <div class="card-label" style="color:var(--lima);margin-bottom:.35rem;">Práctica del día</div>
+        <div id="practica-txt" style="font-size:.88rem;font-weight:600;line-height:1.5;"></div>
+      </div>
+      <button class="btn-ghost" id="practica-nuevo" style="font-size:11px;padding:.45rem .8rem;flex-shrink:0;align-self:flex-start;">Nueva</button>
+    </div>
+  </div>
+
+  <!-- ASISTENCIA -->
+  <div class="card reveal" style="padding: 1rem 1.5rem;">
+    <div class="card-label" style="margin-bottom:.75rem;">Asistencia &middot; Cohort Mayo 2026</div>
+    <div class="attend-strip">
+      <div class="attend-week">
+        <div class="attend-label">SEMANA 1</div>
+        <div class="attend-dots">
+          <div class="attend-dot ok" title="1 abr">&#10003;</div>
+          <div class="attend-dot ok" title="8 abr">&#10003;</div>
+        </div>
+      </div>
+      <div class="attend-week">
+        <div class="attend-label">SEMANA 2</div>
+        <div class="attend-dots">
+          <div class="attend-dot ok" title="15 abr">&#10003;</div>
+          <div class="attend-dot miss" title="22 abr">&ndash;</div>
+        </div>
+      </div>
+      <div class="attend-week">
+        <div class="attend-label">SEMANA 3</div>
+        <div class="attend-dots">
+          <div class="attend-dot ok" title="29 abr">&#10003;</div>
+          <div class="attend-dot ok" title="7 may">&#10003;</div>
+        </div>
+      </div>
+      <div class="attend-week">
+        <div class="attend-label">SEMANA 4</div>
+        <div class="attend-dots">
+          <div class="attend-dot next" title="14 may">&bull;</div>
+          <div class="attend-dot next" title="21 may">&bull;</div>
+        </div>
+      </div>
+      <div class="attend-week">
+        <div class="attend-label">SEMANA 5</div>
+        <div class="attend-dots">
+          <div class="attend-dot next">&bull;</div>
+          <div class="attend-dot next">&bull;</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:.75rem;display:flex;gap:1rem;flex-wrap:wrap;">
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--gris);display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;background:var(--lima);"></span>Asististe</span>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--gris);display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;background:rgba(237,242,244,.06);border:1px solid var(--divider);"></span>Faltaste</span>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--gris);display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;border:1px dashed rgba(199,239,0,.3);"></span>Próxima</span>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--lima);margin-left:auto;">80% asistencia &middot; 5 / 10 clases</span>
+    </div>
+  </div>
+
+  <!-- ROW 1: Proxima clase + Progreso -->
+  <div class="grid-2">
+
+    <!-- PROXIMA CLASE -->
+    <div class="card prox-card reveal">
+      <div class="card-label">Próxima clase</div>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span class="live-label">EN VIVO &middot; ZOOM</span>
+      </div>
+      <div>
+        <div class="clase-fecha">Mie. 14 de Mayo<br>7:00 PM - 9:00 PM</div>
+        <div class="clase-modulo">Módulo 3 &middot; Melodías y Armonía</div>
+      </div>
+      <div class="clase-countdown">
+        <span class="countdown-label">Faltan</span>
+        <span class="countdown-val" id="countdown-val">--:--:--</span>
+      </div>
+      <div class="clase-meta">
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> Grupo Intermedio B</div>
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> 8 alumnos &middot; cupo lleno</div>
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> Instructor: Refugee</div>
+      </div>
+      <a href="#" class="btn-primary" style="text-align:center; margin-top:auto;">Unirte &nearr;</a>
+    </div>
+
+    <!-- NIVEL -->
+    <div class="card reveal reveal-delay-1">
+      <div class="card-label">Tu progreso</div>
+
+      <div class="nivel-steps">
+        <div class="nivel-step done">
+          <div class="nivel-icon">01</div>
+          <div class="nivel-name">BÁSICO</div>
+        </div>
+        <div class="nivel-step active">
+          <div class="nivel-icon">02</div>
+          <div class="nivel-name">INTER.</div>
+        </div>
+        <div class="nivel-step locked">
+          <div class="nivel-icon">03</div>
+          <div class="nivel-name">AVZ.</div>
+        </div>
+      </div>
+
+      <div class="xp-label-row">
+        <span class="xp-title">NIV.2 &middot; INTERMEDIO</span>
+        <span class="xp-count" id="xp-count">0 / 5 MOD.</span>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="xp-fill" style="width:0%"></div>
+      </div>
+
+      <div class="modulos-list">
+        <div class="modulo-item done">
+          <span class="mod-num">&#10003;</span>
+          <span class="mod-name">Fundamentos del DAW</span>
+          <span class="mod-status">Completado</span>
+        </div>
+        <div class="modulo-item done">
+          <span class="mod-num">&#10003;</span>
+          <span class="mod-name">Drums y Percusión</span>
+          <span class="mod-status">Completado</span>
+        </div>
+        <div class="modulo-item active">
+          <span class="mod-num">&rarr;</span>
+          <span class="mod-name">Melodías y Armonía</span>
+          <span class="mod-status">En curso</span>
+        </div>
+        <div class="modulo-item locked">
+          <span class="mod-num">&#9675;</span>
+          <span class="mod-name">Mezcla Básica</span>
+          <span class="mod-status">Pendiente</span>
+        </div>
+        <div class="modulo-item locked">
+          <span class="mod-num">&#9675;</span>
+          <span class="mod-name">Producción Completa</span>
+          <span class="mod-status">Pendiente</span>
+        </div>
+      </div>
+
+      <div class="logros-sep"></div>
+      <div class="card-label" style="margin-bottom:.75rem;">Logros</div>
+      <div class="logros-grid">
+
+        <!-- BIENVENIDO: auriculares -->
+        <div class="logro unlocked">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="10" y="0" width="12" height="4"/>
+              <rect x="6" y="2" width="4" height="8"/>
+              <rect x="22" y="2" width="4" height="8"/>
+              <rect x="2" y="10" width="8" height="12"/>
+              <rect x="22" y="10" width="8" height="12"/>
+            </svg>
+          </div>
+          <div class="logro-label">Bienvenido</div>
+        </div>
+
+        <!-- PRIMER BEAT: waveform -->
+        <div class="logro unlocked">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="0"  y="14" width="6" height="18"/>
+              <rect x="8"  y="4"  width="6" height="28"/>
+              <rect x="16" y="10" width="6" height="22"/>
+              <rect x="24" y="20" width="6" height="12"/>
+            </svg>
+          </div>
+          <div class="logro-label">Primer Beat</div>
+        </div>
+
+        <!-- MELODIA: nota musical -->
+        <div class="logro locked" data-tip="Completa Melodías y Armonía">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="0"  y="18" width="14" height="12"/>
+              <rect x="10" y="0"  width="4"  height="22"/>
+              <rect x="14" y="0"  width="14" height="4"/>
+              <rect x="24" y="4"  width="4"  height="8"/>
+            </svg>
+          </div>
+          <div class="logro-label">Melodía</div>
+        </div>
+
+        <!-- PRIMER MIX: faders -->
+        <div class="logro locked" data-tip="Completa Mezcla Básica">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="3"  y="0" width="2" height="32"/>
+              <rect x="15" y="0" width="2" height="32"/>
+              <rect x="27" y="0" width="2" height="32"/>
+              <rect x="0"  y="6"  width="8" height="6"/>
+              <rect x="12" y="18" width="8" height="6"/>
+              <rect x="24" y="12" width="8" height="6"/>
+            </svg>
+          </div>
+          <div class="logro-label">Primer Mix</div>
+        </div>
+
+        <!-- PRODUCER: corona -->
+        <div class="logro locked" data-tip="Termina el nivel Intermedio">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="0"  y="20" width="32" height="10"/>
+              <rect x="0"  y="8"  width="8"  height="14"/>
+              <rect x="12" y="0"  width="8"  height="22"/>
+              <rect x="24" y="8"  width="8"  height="14"/>
+            </svg>
+          </div>
+          <div class="logro-label">Producer</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 2: Recursos + Wall of Fame -->
+  <div class="grid-equal" id="recursos">
+
+    <!-- RECURSOS -->
+    <div class="card reveal">
+      <div class="card-label">Recursos del curso</div>
+      <div class="recursos-list">
+
+        <div class="recurso-item">
+          <div class="recurso-ico">&#127941;</div>
+          <div class="recurso-info">
+            <div class="recurso-name">Refugee Drumkit Esencial</div>
+            <div class="recurso-sub">Los sonidos con los que Refu produce</div>
+          </div>
+          <a href="https://www.mediafire.com/file/t1zavjh6pt0bf02/Refugee_Drumkit_Esencial.zip/file"
+             target="_blank" class="recurso-action live">&#8595; Bajar</a>
+        </div>
+
+        <div class="recurso-item">
+          <div class="recurso-ico">&#127925;</div>
+          <div class="recurso-info">
+            <div class="recurso-name">Sample Pack Vol. 2 &middot; Urbano</div>
+            <div class="recurso-sub">Loops, one-shots y percusiones</div>
+          </div>
+          <span class="recurso-action soon">Próximo</span>
+        </div>
+
+        <div class="recurso-item">
+          <div class="recurso-ico">&#127929;</div>
+          <div class="recurso-info">
+            <div class="recurso-name">Presets Serum &middot; Pack Refu</div>
+            <div class="recurso-sub">Synths y leads usados en tracks reales</div>
+          </div>
+          <span class="recurso-action soon">Próximo</span>
+        </div>
+
+        <div class="recurso-item">
+          <div class="recurso-ico">&#128193;</div>
+          <div class="recurso-info">
+            <div class="recurso-name">Template FL Studio &middot; Urbano</div>
+            <div class="recurso-sub">Sesión de referencia lista para usar</div>
+          </div>
+          <span class="recurso-action soon">Próximo</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WALL OF FAME -->
+    <div class="card reveal reveal-delay-1">
+      <div class="card-label">Wall of Fame &middot; Alumnos</div>
+      <div class="wof-list">
+
+        <div class="wof-card reveal">
+          <div class="wof-avatar">AM</div>
+          <div class="wof-info">
+            <div class="wof-track">Sin Mirar Atrás</div>
+            <div class="wof-meta">Andrés M. &middot; Reggaeton &middot; Básico '24</div>
+          </div>
+          <div class="wof-wave" id="wof-wave-0">
+            <span style="--i:0"></span><span style="--i:1"></span>
+            <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
+          </div>
+          <button class="wof-play" data-card="0" aria-label="Reproducir preview">&#9654;</button>
+        </div>
+
+        <div class="wof-card reveal reveal-delay-1">
+          <div class="wof-avatar">VC</div>
+          <div class="wof-info">
+            <div class="wof-track">Lluvia de Noche</div>
+            <div class="wof-meta">Valeria C. &middot; R&amp;B Urbano &middot; Inter. '24</div>
+          </div>
+          <div class="wof-wave" id="wof-wave-1">
+            <span style="--i:0"></span><span style="--i:1"></span>
+            <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
+          </div>
+          <button class="wof-play" data-card="1" aria-label="Reproducir preview">&#9654;</button>
+        </div>
+
+        <div class="wof-card reveal reveal-delay-2">
+          <div class="wof-avatar">DR</div>
+          <div class="wof-info">
+            <div class="wof-track">Más Allá del Break</div>
+            <div class="wof-meta">Diego R. &middot; Trap &middot; Básico '25</div>
+          </div>
+          <div class="wof-wave" id="wof-wave-2">
+            <span style="--i:0"></span><span style="--i:1"></span>
+            <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
+          </div>
+          <button class="wof-play" data-card="2" aria-label="Reproducir preview">&#9654;</button>
+        </div>
+
+        <div class="wof-card placeholder">
+          <div class="wof-avatar" style="background:transparent;color:var(--gris);">+</div>
+          <div class="wof-info">
+            <div class="wof-track" style="color:var(--gris);">Tu track aquí</div>
+            <div class="wof-meta">Al terminar Avanzado &middot; comparte tu producción</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HISTORIAL DE CLASES -->
+  <div class="card reveal">
+    <div class="card-label">Clases anteriores</div>
+    <div class="historial-list">
+
+      <div class="historial-item">
+        <div class="historial-num mono" style="color:var(--lima);font-size:11px;width:28px;flex-shrink:0;">&#10003;</div>
+        <div class="historial-info">
+          <div class="historial-titulo">Módulo 1 · Fundamentos del DAW</div>
+          <div class="historial-meta">1 de abril &middot; 2h 10m &middot; FL Studio / Ableton</div>
+        </div>
+        <div class="historial-rating">
+          <button class="hist-rate" data-clase="m1a" data-val="fire" title="¡Fuego!">🔥</button>
+          <button class="hist-rate" data-clase="m1a" data-val="good" title="Buena clase">👍</button>
+        </div>
+        <a href="#" class="recurso-action live" style="flex-shrink:0;margin-left:.5rem;">Ver</a>
+      </div>
+
+      <div class="historial-item">
+        <div class="historial-num mono" style="color:var(--lima);font-size:11px;width:28px;flex-shrink:0;">&#10003;</div>
+        <div class="historial-info">
+          <div class="historial-titulo">Módulo 1 · Flujo de producción y exportación</div>
+          <div class="historial-meta">8 de abril &middot; 1h 55m &middot; Mezcla básica</div>
+        </div>
+        <div class="historial-rating">
+          <button class="hist-rate" data-clase="m1b" data-val="fire" title="¡Fuego!">🔥</button>
+          <button class="hist-rate" data-clase="m1b" data-val="good" title="Buena clase">👍</button>
+        </div>
+        <a href="#" class="recurso-action live" style="flex-shrink:0;margin-left:.5rem;">Ver</a>
+      </div>
+
+      <div class="historial-item">
+        <div class="historial-num mono" style="color:var(--lima);font-size:11px;width:28px;flex-shrink:0;">&#10003;</div>
+        <div class="historial-info">
+          <div class="historial-titulo">Módulo 2 · Programación de drums</div>
+          <div class="historial-meta">22 de abril &middot; 2h 20m &middot; Kick, snare, hats</div>
+        </div>
+        <div class="historial-rating">
+          <button class="hist-rate" data-clase="m2a" data-val="fire" title="¡Fuego!">🔥</button>
+          <button class="hist-rate" data-clase="m2a" data-val="good" title="Buena clase">👍</button>
+        </div>
+        <a href="#" class="recurso-action live" style="flex-shrink:0;margin-left:.5rem;">Ver</a>
+      </div>
+
+      <div class="historial-item">
+        <div class="historial-num mono" style="color:var(--lima);font-size:11px;width:28px;flex-shrink:0;">&#10003;</div>
+        <div class="historial-info">
+          <div class="historial-titulo">Módulo 2 · Percusión afro y patrones latinos</div>
+          <div class="historial-meta">29 de abril &middot; 2h 05m &middot; Dembow, trap, afrobeats</div>
+        </div>
+        <div class="historial-rating">
+          <button class="hist-rate" data-clase="m2b" data-val="fire" title="¡Fuego!">🔥</button>
+          <button class="hist-rate" data-clase="m2b" data-val="good" title="Buena clase">👍</button>
+        </div>
+        <a href="#" class="recurso-action live" style="flex-shrink:0;margin-left:.5rem;">Ver</a>
+      </div>
+
+      <div class="historial-item historial-item--active">
+        <div class="historial-num mono" style="color:var(--lima);font-size:11px;width:28px;flex-shrink:0;">&rarr;</div>
+        <div class="historial-info">
+          <div class="historial-titulo">Módulo 3 · Melodías y Armonía <span style="color:var(--lima);font-size:10px;font-family:var(--font-mono);margin-left:.5rem;">EN CURSO</span></div>
+          <div class="historial-meta">7 de mayo &middot; En progreso</div>
+        </div>
+        <span class="recurso-action soon" style="flex-shrink:0;">Próximamente</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BEAT BUILDER PROMO -->
+  <div class="card reveal" style="border-left: 3px solid var(--lima);">
+    <div class="beat-promo">
+      <div class="beat-promo-text">
+        <div class="card-label">Practica ahora</div>
+        <h3>Beat Builder <em>de Atalaya</em></h3>
+        <p>Construye beats en el secuenciador propio de la academia. Carga el preset de tu género - REGGAETON, CORRIDO o AFROBEATS - o empieza desde cero y comparte tu beat.</p>
+        <a href="/beat" class="btn-primary">Abrir Beat Builder &nearr;</a>
+      </div>
+      <svg class="beat-promo-char" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon fill="currentColor" points="717.15 327.12 717.15 232.5 628.57 232.5 628.57 137.89 451.42 137.89 451.42 232.5 362.85 232.5 362.85 327.12 274.27 327.12 274.27 421.73 451.42 421.73 451.42 327.12 540 327.12 628.57 327.12 628.57 421.73 805.73 421.73 805.73 327.12 717.15 327.12"/>
+        <polygon fill="currentColor" points="451.43 469.04 274.27 469.04 274.27 563.65 451.43 563.65 451.43 658.27 451.43 752.88 362.85 752.88 362.85 847.5 274.27 847.5 274.27 942.11 451.43 942.11 451.43 847.5 540 847.5 628.57 847.5 628.57 942.11 805.73 942.11 805.73 847.5 717.15 847.5 717.15 752.88 628.58 752.88 628.58 658.27 628.58 563.65 805.73 563.65 805.73 469.04 628.58 469.04 451.43 469.04"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- TAREA + NOTAS (2 columnas) -->
+  <div class="grid-equal">
+
+    <!-- TAREA DE LA SEMANA -->
+    <div class="card reveal">
+      <div class="card-label">Tarea de la semana</div>
+      <div style="display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem;">
+        <div style="font-size:1.6rem;line-height:1;flex-shrink:0;">&#127926;</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:700;margin-bottom:.35rem;line-height:1.3;">Melodía de 8 compases en escala menor</div>
+          <div style="font-size:.75rem;color:var(--gris);line-height:1.6;">Crea una melodía completa usando la escala menor armónica. Que tenga intro, desarrollo y cierre. Exporta el proyecto y súbelo al grupo antes del viernes.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;">
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> Fecha límite: viernes 16 de mayo</div>
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> Formato: proyecto FL o Ableton + MP3</div>
+        <div class="clase-meta-row"><span class="ico">&#9670;</span> Compartir en el grupo de WhatsApp</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .8rem;background:rgba(199,239,0,.06);border:1px solid rgba(199,239,0,.15);">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--lima);letter-spacing:.06em;">EN PROGRESO</span>
+        <div style="display:flex;gap:3px;">
+          <div style="width:14px;height:4px;background:var(--lima);"></div>
+          <div style="width:14px;height:4px;background:var(--lima);"></div>
+          <div style="width:14px;height:4px;background:var(--lima);"></div>
+          <div style="width:14px;height:4px;background:var(--card-hi);border:1px solid var(--divider);"></div>
+          <div style="width:14px;height:4px;background:var(--card-hi);border:1px solid var(--divider);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTAS PERSONALES -->
+    <div class="card reveal reveal-delay-1">
+      <div class="card-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Mis notas &middot; Módulo 3</span>
+        <button class="notes-expand-btn" id="notes-expand">EXPANDIR</button>
+      </div>
+      <textarea class="notes-pad" id="notes-pad"
+        placeholder="Escala menor armónica: 1 2 b3 4 5 b6 7&#10;Acorde i: Dm  iv: Gm  V: A&#10;..."></textarea>
+      <div class="notes-footer">
+        <span class="notes-saved" id="notes-saved" style="opacity:0;">&#10003; Guardado</span>
+        <span class="notes-count" id="notes-count">0 / 600</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CERTIFICADO -->
+  <div class="card reveal">
+    <div class="card-label">Tu certificado digital</div>
+    <p class="cert-intro">Al terminar cada nivel recibes un certificado descargable con tu nombre. Compártelo en redes - es la prueba de que ya produces de verdad.</p>
+
+    <div class="cert-form">
+      <div class="cert-field">
+        <label class="cert-field-label" for="cert-name">TU NOMBRE</label>
+        <input class="cert-input" id="cert-name" type="text"
+               placeholder="Cómo quieres que aparezca" autocomplete="off">
+      </div>
+      <div class="cert-field">
+        <label class="cert-field-label" for="cert-nivel">NIVEL</label>
+        <select class="cert-select" id="cert-nivel">
+          <option value="PRODUCCIÓN MUSICAL · BÁSICO">Básico</option>
+          <option value="PRODUCCIÓN MUSICAL · INTERMEDIO" selected>Intermedio</option>
+          <option value="PRODUCCIÓN MUSICAL · AVANZADO">Avanzado</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="btn-gen">Generar certificado</button>
+    </div>
+
+    <div class="cert-preview-wrap" id="cert-wrap">
+      <iframe id="cert-iframe" style="display:none;"></iframe>
+      <div class="cert-ph" id="cert-ph">ESCRIBE TU NOMBRE<br>Y GENERA TU CERTIFICADO</div>
+    </div>
+
+    <div class="cert-actions">
+      <button class="btn-primary" id="btn-dl" style="display:none;">&#8595; Descargar PDF</button>
+      <button class="btn-ghost" id="btn-story" style="display:none;">&#8595; Historia PNG</button>
+      <span class="cert-hint" id="cert-hint">Escribe tu nombre arriba y haz clic en Generar</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<!-- BACK TO TOP -->
+<button class="back-top" id="back-top" aria-label="Volver arriba">&#8593;</button>
+
+<script>
+  /* ── CERTIFICADO PDF ── */
+  var certIframe = document.getElementById('cert-iframe');
+  var ph         = document.getElementById('cert-ph');
+  var btnDl      = document.getElementById('btn-dl');
+  var btnStory   = document.getElementById('btn-story');
+  var hint       = document.getElementById('cert-hint');
+  var certBlobUrl = null;
+
+  var MONTHS = ['enero','febrero','marzo','abril','mayo','junio',
+                'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  function buildCertHTML(name, nivel) {
+    var d = new Date();
+    var fecha = d.getDate() + ' de ' + MONTHS[d.getMonth()] + ' de ' + d.getFullYear();
+
+    return [
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+      '<link rel="preconnect" href="https://fonts.googleapis.com">',
+      '<title>Certificado Atalaya · ' + name + '</title>',
+      '<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;700;900&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">',
+      '<style>',
+      '*{margin:0;padding:0;box-sizing:border-box;}',
+      '@page{size:A4 landscape;margin:0;}',
+      'html,body{width:297mm;height:210mm;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;}',
+      '.cert{width:297mm;height:210mm;background:#2b2d42;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}',
+      '.textura{position:absolute;inset:0;',
+        'background-image:url("https://atalaya.com.mx/assets/textura/textura-piso.svg");',
+        'background-repeat:repeat;',
+        'background-size:374mm 115mm;',
+        'opacity:0.07;pointer-events:none;}',
+      '.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}',
+      '.logo{height:14mm;width:auto;color:#edf2f4;margin-bottom:5mm;}',
+      '.academia{font-family:"Chivo Mono",monospace;font-size:6pt;color:rgba(237,242,244,0.3);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6mm;}',
+      '.divider{width:50mm;height:1px;background:rgba(237,242,244,0.08);margin-bottom:6mm;}',
+      '.lbl{font-family:"Chivo Mono",monospace;font-size:7pt;color:rgba(237,242,244,0.38);letter-spacing:0.1em;margin-bottom:3.5mm;}',
+      '.name{font-family:"Chivo",sans-serif;font-size:48pt;font-weight:900;color:#edf2f4;line-height:1;margin-bottom:4.5mm;}',
+      '.nivel{font-family:"Chivo Mono",monospace;font-size:9pt;font-weight:700;color:#c7ef00;letter-spacing:0.12em;margin-bottom:4.5mm;}',
+      '.fecha{font-family:"Chivo Mono",monospace;font-size:6.5pt;color:rgba(237,242,244,0.2);letter-spacing:0.06em;margin-bottom:9mm;}',
+      '.sig-line{width:40mm;height:1px;background:rgba(199,239,0,0.2);margin-bottom:2.5mm;}',
+      '.sig-name{font-family:"Chivo Mono",monospace;font-size:8pt;font-weight:700;color:#c7ef00;letter-spacing:0.08em;}',
+      '.sig-role{font-family:"Chivo Mono",monospace;font-size:6pt;color:rgba(237,242,244,0.25);letter-spacing:0.07em;margin-top:1.5mm;}',
+      '</style></head><body>',
+      '<div class="cert">',
+        '<div class="textura"></div>',
+        '<div class="content">',
+          '<svg class="logo" viewBox="140 355 510 80" xmlns="http://www.w3.org/2000/svg">',
+            '<g fill="currentColor">',
+              '<polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>',
+              '<polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>',
+              '<polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>',
+              '<polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>',
+              '<polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>',
+              '<polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>',
+              '<polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>',
+            '</g>',
+          '</svg>',
+          '<div class="academia">Academia de Producción Musical</div>',
+          '<div class="divider"></div>',
+          '<div class="lbl">Este certificado se otorga a</div>',
+          '<div class="name">' + name + '</div>',
+          '<div class="nivel">' + nivel + '</div>',
+          '<div class="fecha">' + fecha + '</div>',
+          '<div class="sig-line"></div>',
+          '<div class="sig-name">REFUGEE</div>',
+          '<div class="sig-role">Fundador &middot; Atalaya</div>',
+        '</div>',
+      '</div>',
+      '<script>document.fonts.ready.then(function(){window.print();});<\/script>',
+      '</body></html>'
+    ].join('');
+  }
+
+  function generate() {
+    var name  = document.getElementById('cert-name').value.trim();
+    var nivel = document.getElementById('cert-nivel').value;
+    if (!name) { document.getElementById('cert-name').focus(); return; }
+
+    var html = buildCertHTML(name, nivel);
+    var blob = new Blob([html], { type: 'text/html' });
+    if (certBlobUrl) URL.revokeObjectURL(certBlobUrl);
+    certBlobUrl = URL.createObjectURL(blob);
+
+    certIframe.src = certBlobUrl;
+    certIframe.style.display = 'block';
+    ph.style.display = 'none';
+    btnDl.style.display = 'inline-block';
+    btnStory.style.display = 'inline-block';
+    hint.textContent = 'Vista previa lista. Descarga como PDF desde el diálogo de impresión.';
+  }
+
+  document.getElementById('btn-gen').addEventListener('click', generate);
+  document.getElementById('cert-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') generate();
+  });
+
+  btnDl.addEventListener('click', function() {
+    if (!certBlobUrl) return;
+    var win = window.open(certBlobUrl, '_blank');
+    if (win) {
+      win.addEventListener('load', function() {
+        win.document.fonts.ready.then(function() { win.print(); });
+      });
+    }
+  });
+
+  /* ── HISTORIA PNG (canvas 1080×1920) ── */
+  var WORDMARK_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="540" height="85" viewBox="140 355 510 80"><g fill="#c7ef00">' +
+    '<polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>' +
+    '<polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>' +
+    '<polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>' +
+    '<polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>' +
+    '<polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>' +
+    '<polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>' +
+    '<polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>' +
+    '</g></svg>';
+
+  function generateStory() {
+    var name  = document.getElementById('cert-name').value.trim();
+    var nivel = document.getElementById('cert-nivel').value;
+    if (!name) { document.getElementById('cert-name').focus(); return; }
+
+    var d = new Date();
+    var fecha = d.getDate() + ' DE ' + MONTHS[d.getMonth()].toUpperCase() + ' DE ' + d.getFullYear();
+
+    var W = 1080, H = 1920;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    var wmBlob = new Blob([WORDMARK_SVG], { type: 'image/svg+xml' });
+    var wmUrl  = URL.createObjectURL(wmBlob);
+
+    function paint(texImg) {
+      /* fondo */
+      ctx.fillStyle = '#2b2d42';
+      ctx.fillRect(0, 0, W, H);
+
+      /* textura tileada - SVG ratio 3516:1080 ≈ 3.256 */
+      if (texImg) {
+        var tH = Math.round(W / 3.256); /* ~332px */
+        ctx.save();
+        ctx.globalAlpha = 0.07;
+        for (var y = 0; y < H; y += tH) ctx.drawImage(texImg, 0, y, W, tH);
+        ctx.restore();
+      }
+
+      document.fonts.ready.then(function() {
+        var wm = new Image();
+        wm.onload = function() {
+          var wmW = 540, wmH = Math.round(540 * 80 / 510); /* ~85px */
+          ctx.textAlign = 'center';
+
+          /* wordmark */
+          ctx.drawImage(wm, (W - wmW) / 2, 560, wmW, wmH);
+          URL.revokeObjectURL(wmUrl);
+
+          /* academia */
+          ctx.font = '500 25px "Chivo Mono"';
+          ctx.fillStyle = 'rgba(237,242,244,0.28)';
+          ctx.fillText('ACADEMIA DE PRODUCCIÓN MUSICAL', W / 2, 688);
+
+          /* divisor superior */
+          ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(300, 716); ctx.lineTo(780, 716); ctx.stroke();
+
+          /* se otorga a */
+          ctx.font = '500 27px "Chivo Mono"';
+          ctx.fillStyle = 'rgba(237,242,244,0.35)';
+          ctx.fillText('ESTE CERTIFICADO SE OTORGA A', W / 2, 788);
+
+          /* nombre - escala si es largo */
+          var fs = name.length > 18 ? 80 : name.length > 13 ? 100 : name.length > 9 ? 116 : 132;
+          ctx.font = '900 ' + fs + 'px "Chivo"';
+          ctx.fillStyle = '#edf2f4';
+          ctx.fillText(name, W / 2, 920);
+
+          /* nivel */
+          ctx.font = '700 38px "Chivo Mono"';
+          ctx.fillStyle = '#c7ef00';
+          ctx.fillText(nivel, W / 2, 990);
+
+          /* fecha */
+          ctx.font = '400 26px "Chivo Mono"';
+          ctx.fillStyle = 'rgba(237,242,244,0.18)';
+          ctx.fillText(fecha, W / 2, 1042);
+
+          /* línea de firma */
+          ctx.strokeStyle = 'rgba(199,239,0,0.2)';
+          ctx.beginPath(); ctx.moveTo(380, 1104); ctx.lineTo(700, 1104); ctx.stroke();
+
+          /* firma */
+          ctx.font = '700 36px "Chivo Mono"';
+          ctx.fillStyle = '#c7ef00';
+          ctx.fillText('REFUGEE', W / 2, 1148);
+
+          ctx.font = '400 24px "Chivo Mono"';
+          ctx.fillStyle = 'rgba(237,242,244,0.22)';
+          ctx.fillText('FUNDADOR · ATALAYA', W / 2, 1184);
+
+          /* url pie */
+          ctx.font = '500 28px "Chivo Mono"';
+          ctx.fillStyle = 'rgba(199,239,0,0.3)';
+          ctx.fillText('ATALAYA.COM.MX', W / 2, 1820);
+
+          /* descargar */
+          canvas.toBlob(function(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'Certificado Atalaya · ' + name + ' · Historia.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+            showToast('&#10003; Historia PNG descargada');
+          }, 'image/png');
+        };
+        wm.src = wmUrl;
+      });
+    }
+
+    var tex = new Image();
+    tex.crossOrigin = 'anonymous';
+    tex.onload  = function() { paint(tex); };
+    tex.onerror = function() { paint(null); };
+    tex.src = 'https://atalaya.com.mx/assets/textura/textura-piso.svg';
+  }
+
+  btnStory.addEventListener('click', generateStory);
+</script>
+
+<script>
+  /* ── SCROLL REVEAL ── */
+  (function() {
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+  })();
+
+  /* ── COUNTDOWN A PRÓXIMA CLASE ── */
+  (function() {
+    var el = document.getElementById('countdown-val');
+    var target = new Date(2026, 4, 14, 19, 0, 0); /* May 14, 7:00 PM */
+    function tick() {
+      var diff = target - new Date();
+      if (diff <= 0) {
+        el.innerHTML = '<span class="countdown-live">¡EN VIVO!</span>';
+        return;
+      }
+      var d = Math.floor(diff / 864e5);
+      var h = Math.floor((diff % 864e5) / 36e5);
+      var m = Math.floor((diff % 36e5) / 6e4);
+      var s = Math.floor((diff % 6e4) / 1e3);
+      el.textContent = (d > 0 ? d + 'd ' : '') +
+        String(h).padStart(2,'0') + ':' +
+        String(m).padStart(2,'0') + ':' +
+        String(s).padStart(2,'0');
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+
+  /* ── STATS COUNTERS ── */
+  (function() {
+    var STATS = [
+      { id: 'stat-horas', target: 24 },
+      { id: 'stat-beats', target: 12 },
+      { id: 'stat-racha', target: 3  }
+    ];
+    function animCounter(el, target, dur) {
+      var start = null;
+      requestAnimationFrame(function tick(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+        if (p < 1) requestAnimationFrame(tick);
+      });
+    }
+    var fired = false;
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !fired) {
+        fired = true;
+        STATS.forEach(function(s) {
+          var el = document.getElementById(s.id);
+          if (el) animCounter(el, s.target, 900);
+        });
+        obs.disconnect();
+      }
+    }, { threshold: 0.5 });
+    var bar = document.querySelector('.stats-bar');
+    if (bar) obs.observe(bar);
+  })();
+
+  /* ── WALL OF FAME AUDIO ── */
+  (function() {
+    var actx = null;
+    var timerID = null;
+    var activeCard = -1;
+    var step = 0;
+    var nextTime = 0;
+    var LOOKAHEAD = 0.1;
+
+    /* Beats: [bpm, kick[16], hat[16], melody[16]] */
+    /* Melody = MIDI note (0 = silencio) */
+    var BEATS = [
+      { /* Reggaeton - Sin Mirar Atrás */
+        bpm:  95,
+        kick: [1,0,0,1,0,0,1,0,1,0,0,0,1,0,1,0],
+        hat:  [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+        mel:  [62,0,0,0,67,0,65,0,62,0,0,0,60,0,62,0],
+        type: 'square'
+      },
+      { /* R&B - Lluvia de Noche */
+        bpm:  78,
+        kick: [1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0],
+        hat:  [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+        mel:  [65,0,67,0,0,0,65,0,63,0,0,0,60,0,63,0],
+        type: 'sine'
+      },
+      { /* Trap - Más Allá del Break */
+        bpm:  140,
+        kick: [1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0],
+        hat:  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        mel:  [52,0,0,0,55,0,0,0,52,0,0,0,50,0,53,0],
+        type: 'sawtooth'
+      }
+    ];
+
+    function hz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+    function kick(t) {
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.connect(g); g.connect(actx.destination);
+      o.frequency.setValueAtTime(160, t);
+      o.frequency.exponentialRampToValueAtTime(42, t + 0.08);
+      g.gain.setValueAtTime(0.75, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      o.start(t); o.stop(t + 0.3);
+    }
+
+    function hat(t, vol) {
+      var buf = actx.createBuffer(1, actx.sampleRate * 0.06, actx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      var src = actx.createBufferSource();
+      src.buffer = buf;
+      var f = actx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7500;
+      var g = actx.createGain();
+      src.connect(f); f.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(vol || 0.18, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      src.start(t); src.stop(t + 0.07);
+    }
+
+    function note(t, midi, beat) {
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = beat.type;
+      o.connect(g); g.connect(actx.destination);
+      var f = hz(midi);
+      o.frequency.setValueAtTime(f, t);
+      if (beat.type === 'sawtooth') {
+        o.frequency.exponentialRampToValueAtTime(f * 0.72, t + 0.22);
+        g.gain.setValueAtTime(0.14, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      } else if (beat.type === 'sine') {
+        g.gain.setValueAtTime(0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      } else {
+        g.gain.setValueAtTime(0.07, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      }
+      o.start(t); o.stop(t + 0.5);
+    }
+
+    function schedule(b) {
+      var stepDur = 60 / (b.bpm * 4);
+      var hatVol  = b.type === 'sine' ? 0.1 : b.type === 'sawtooth' ? 0.22 : 0.15;
+      while (nextTime < actx.currentTime + LOOKAHEAD) {
+        var s = step % 16;
+        if (b.kick[s]) kick(nextTime);
+        if (b.hat[s])  hat(nextTime, hatVol);
+        if (b.mel[s])  note(nextTime, b.mel[s], b);
+        nextTime += stepDur;
+        step++;
+      }
+      timerID = setTimeout(function() { schedule(b); }, 25);
+    }
+
+    function stopAll() {
+      clearTimeout(timerID); timerID = null;
+      /* update all UI */
+      document.querySelectorAll('.wof-play').forEach(function(btn) {
+        btn.textContent = '▶'; btn.classList.remove('playing');
+      });
+      document.querySelectorAll('.wof-wave').forEach(function(w) {
+        w.classList.remove('playing');
+      });
+    }
+
+    function toggle(idx) {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      if (activeCard === idx) { stopAll(); activeCard = -1; return; }
+      stopAll();
+      activeCard = idx; step = 0; nextTime = actx.currentTime + 0.05;
+      schedule(BEATS[idx]);
+      var btn  = document.querySelector('.wof-play[data-card="' + idx + '"]');
+      var wave = document.getElementById('wof-wave-' + idx);
+      if (btn)  { btn.textContent = '■'; btn.classList.add('playing'); }
+      if (wave) wave.classList.add('playing');
+    }
+
+    document.querySelectorAll('.wof-play[data-card]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        toggle(parseInt(btn.dataset.card));
+      });
+    });
+  })();
+
+  /* ── LOGROS CLICK ── */
+  document.querySelectorAll('.logro').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var cls = el.classList.contains('unlocked') ? 'pop-anim' : 'shake-anim';
+      el.classList.remove('pop-anim', 'shake-anim');
+      void el.offsetWidth; /* reflow para reiniciar */
+      el.classList.add(cls);
+      el.addEventListener('animationend', function() { el.classList.remove(cls); }, { once: true });
+    });
+  });
+
+  /* ── XP BAR ANIMATION ── */
+  (function() {
+    var fill  = document.getElementById('xp-fill');
+    var count = document.getElementById('xp-count');
+    var target = 60, mods = 3, dur = 1100;
+    var fired = false;
+
+    function run() {
+      if (fired) return;
+      fired = true;
+      fill.classList.add('xp-go');
+      fill.style.width = target + '%';
+      var start = null;
+      requestAnimationFrame(function tick(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var ease = 1 - Math.pow(1 - p, 3);
+        count.textContent = Math.floor(ease * mods) + ' / 5 MOD.';
+        if (p < 1) requestAnimationFrame(tick);
+        else count.textContent = mods + ' / 5 MOD.';
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) { run(); obs.disconnect(); }
+      }, { threshold: 0.4 });
+      obs.observe(fill);
+    } else {
+      run(); /* fallback: animar de inmediato */
+    }
+  })();
+
+  /* ── NOTAS AUTO-SAVE ── */
+  (function() {
+    var pad     = document.getElementById('notes-pad');
+    var savedEl = document.getElementById('notes-saved');
+    var countEl = document.getElementById('notes-count');
+    var MAX = 600, timer = null;
+
+    /* load from localStorage */
+    var stored = localStorage.getItem('atalaya-notes-m3');
+    if (stored) pad.value = stored;
+    updateCount();
+
+    function updateCount() {
+      var len = pad.value.length;
+      countEl.textContent = len + ' / ' + MAX;
+      countEl.style.color = len > MAX ? 'rgba(255,80,80,.8)' : '';
+    }
+
+    function save() {
+      localStorage.setItem('atalaya-notes-m3', pad.value.slice(0, MAX));
+      savedEl.style.opacity = '1';
+      clearTimeout(timer);
+      timer = setTimeout(function() { savedEl.style.opacity = '0'; }, 1800);
+    }
+
+    pad.addEventListener('input', function() {
+      updateCount();
+      clearTimeout(timer);
+      timer = setTimeout(save, 550);
+    });
+
+    /* Cmd/Ctrl+S para guardar manualmente */
+    pad.addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        clearTimeout(timer);
+        save();
+      }
+    });
+  })();
+
+  /* ── TOAST HELPER ── */
+  var _toastTimer;
+  function showToast(msg) {
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2400);
+  }
+
+  /* ── PRÁCTICA DEL DÍA ── */
+  (function() {
+    var PRACTICAS = [
+      'Programa un beat de reggaeton en 4/4 a 95 BPM. Solo kick, snare y hat. Sin melodía aún.',
+      'Crea una progresión de 4 acordes en Do menor: Cm - Ab - Eb - Bb. Repítela 4 veces.',
+      'Toma una melodía que ya tengas y cámbiala a 3/4. Ajusta el ritmo sin perder la identidad.',
+      'Diseña un bajo que vaya con una nota en el tiempo 1 y otra en el tiempo 3. Simple y efectivo.',
+      'Exporta un stem de solo drums de un proyecto existente y analiza qué le falta.',
+      'Programa una melodía de 8 compases usando solo 3 notas distintas. Fuerza la creatividad.',
+      'Busca un track que te guste y trata de replicar su groove de drums en 10 minutos.',
+      'Mezcla 3 sonidos distintos para crear un kick único. Compresión, EQ y saturación.',
+      'Crea un ritmo afrobeat a 110 BPM. El clave debe sentirse desde el primer loop.',
+      'Haz una transición entre dos beats usando solo volumen y un filter. Sin plugins extra.',
+      'Toma el Drumkit de Refu y diseña 3 hats distintos cambiando solo pitch y decay.',
+      'Compón 16 compases en papel - solo la estructura conceptual, sin abrir el DAW.'
+    ];
+    var el  = document.getElementById('practica-txt');
+    var btn = document.getElementById('practica-nuevo');
+    if (!el || !btn) return;
+    var last = -1;
+    function pick() {
+      var idx;
+      do { idx = Math.floor(Math.random() * PRACTICAS.length); } while (idx === last);
+      last = idx;
+      el.style.opacity = '0';
+      setTimeout(function() {
+        el.textContent = PRACTICAS[idx];
+        el.style.transition = 'opacity .3s';
+        el.style.opacity = '1';
+      }, 150);
+    }
+    pick();
+    btn.addEventListener('click', pick);
+  })();
+
+  /* ── BACK TO TOP ── */
+  (function() {
+    var btn = document.getElementById('back-top');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+
+  /* ── NOTES EXPAND ── */
+  (function() {
+    var btn = document.getElementById('notes-expand');
+    var pad = document.getElementById('notes-pad');
+    if (!btn || !pad) return;
+    var exp = false;
+    btn.addEventListener('click', function() {
+      exp = !exp;
+      pad.style.transition = 'height .3s cubic-bezier(.25,1,.5,1)';
+      pad.style.height = exp ? '380px' : '200px';
+      btn.textContent = exp ? 'REDUCIR' : 'EXPANDIR';
+      if (exp) pad.focus();
+    });
+  })();
+
+  /* ── COMPARTIR PROGRESO (canvas 1080x1080) ── */
+  (function() {
+    var btn = document.getElementById('btn-share-prog');
+    if (!btn) return;
+
+    var WM_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="63" viewBox="140 355 510 80"><g fill="#c7ef00">' +
+      '<polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>' +
+      '<polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>' +
+      '<polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>' +
+      '<polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>' +
+      '<polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>' +
+      '<polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>' +
+      '<polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>' +
+      '</g></svg>';
+
+    function drawProgressCard() {
+      var S = 1080;
+      var canvas = document.createElement('canvas');
+      canvas.width = S; canvas.height = S;
+      var ctx = canvas.getContext('2d');
+
+      var wmBlob = new Blob([WM_SVG], { type: 'image/svg+xml' });
+      var wmUrl  = URL.createObjectURL(wmBlob);
+
+      function paint(texImg) {
+        /* bg */
+        ctx.fillStyle = '#2b2d42';
+        ctx.fillRect(0, 0, S, S);
+
+        /* textura */
+        if (texImg) {
+          var tH = Math.round(S / 3.256);
+          ctx.save(); ctx.globalAlpha = 0.07;
+          for (var y = 0; y < S; y += tH) ctx.drawImage(texImg, 0, y, S, tH);
+          ctx.restore();
+        }
+
+        document.fonts.ready.then(function() {
+          var wm = new Image();
+          wm.onload = function() {
+            ctx.textAlign = 'center';
+
+            /* borde lima izquierda */
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillRect(0, 0, 8, S);
+
+            /* wordmark */
+            var wmW = 400, wmH = Math.round(400 * 80 / 510);
+            ctx.drawImage(wm, (S - wmW) / 2, 130, wmW, wmH);
+            URL.revokeObjectURL(wmUrl);
+
+            /* academia */
+            ctx.font = '500 22px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(237,242,244,0.25)';
+            ctx.fillText('ACADEMIA DE PRODUCCIÓN MUSICAL', S / 2, 248);
+
+            /* divider */
+            ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(200, 278); ctx.lineTo(880, 278); ctx.stroke();
+
+            /* avatar círculo */
+            ctx.fillStyle = '#c7ef00';
+            ctx.beginPath(); ctx.arc(S / 2, 360, 56, 0, Math.PI * 2); ctx.fill();
+            ctx.font = '700 42px "Chivo Mono"';
+            ctx.fillStyle = '#2b2d42';
+            ctx.fillText('RF', S / 2, 376);
+
+            /* nombre */
+            ctx.font = '900 80px "Chivo"';
+            ctx.fillStyle = '#edf2f4';
+            ctx.fillText('Refu', S / 2, 506);
+
+            /* nivel tag */
+            var tagW = 340, tagH = 48, tagX = (S - tagW) / 2, tagY = 530;
+            ctx.fillStyle = 'rgba(199,239,0,0.1)';
+            ctx.fillRect(tagX, tagY, tagW, tagH);
+            ctx.strokeStyle = 'rgba(199,239,0,0.35)';
+            ctx.strokeRect(tagX, tagY, tagW, tagH);
+            ctx.font = '700 20px "Chivo Mono"';
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillText('NIV.2 · INTERMEDIO', S / 2, tagY + 31);
+
+            /* stats 3 columnas */
+            var stats = [
+              { val: '24', label: 'HRS DE CLASE' },
+              { val: '12', label: 'BEATS HECHOS' },
+              { val: '3',  label: 'SEM. SEGUIDAS' }
+            ];
+            var colW = S / 3;
+            stats.forEach(function(s, i) {
+              var cx = colW * i + colW / 2;
+              /* separador */
+              if (i > 0) {
+                ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+                ctx.beginPath(); ctx.moveTo(colW * i, 630); ctx.lineTo(colW * i, 780); ctx.stroke();
+              }
+              ctx.font = '700 72px "Chivo Mono"';
+              ctx.fillStyle = '#c7ef00';
+              ctx.fillText(s.val, cx, 720);
+              ctx.font = '500 18px "Chivo Mono"';
+              ctx.fillStyle = 'rgba(237,242,244,0.32)';
+              ctx.fillText(s.label, cx, 758);
+            });
+
+            /* divider */
+            ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+            ctx.beginPath(); ctx.moveTo(200, 800); ctx.lineTo(880, 800); ctx.stroke();
+
+            /* XP bar */
+            ctx.font = '500 20px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(237,242,244,0.3)';
+            ctx.textAlign = 'left';
+            ctx.fillText('PROGRESO NIV.2', 200, 848);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillText('3 / 5 MOD.', 880, 848);
+
+            /* bar track */
+            ctx.fillStyle = 'rgba(237,242,244,0.06)';
+            ctx.fillRect(200, 860, 680, 14);
+            /* bar fill 60% */
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillRect(200, 860, 680 * 0.6, 14);
+
+            /* logros */
+            ctx.textAlign = 'center';
+            ctx.font = '500 18px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(237,242,244,0.2)';
+            ctx.fillText('LOGROS DESBLOQUEADOS', S / 2, 930);
+
+            var logroLabels = ['BIENVENIDO', 'PRIMER BEAT'];
+            logroLabels.forEach(function(lb, i) {
+              var cx = S / 2 - 70 + i * 140;
+              /* dot */
+              ctx.fillStyle = '#c7ef00';
+              ctx.beginPath(); ctx.arc(cx, 968, 10, 0, Math.PI * 2); ctx.fill();
+              ctx.font = '400 16px "Chivo Mono"';
+              ctx.fillStyle = 'rgba(237,242,244,0.45)';
+              ctx.fillText(lb, cx, 1000);
+            });
+
+            /* url */
+            ctx.font = '500 24px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(199,239,0,0.3)';
+            ctx.fillText('ATALAYA.COM.MX', S / 2, 1050);
+
+            /* download */
+            canvas.toBlob(function(blob) {
+              var url = URL.createObjectURL(blob);
+              var a = document.createElement('a');
+              a.href = url; a.download = 'Progreso Atalaya · Refu.png';
+              document.body.appendChild(a); a.click(); document.body.removeChild(a);
+              setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+              showToast('&#10003; Imagen de progreso descargada');
+            }, 'image/png');
+          };
+          wm.src = wmUrl;
+        });
+      }
+
+      var tex = new Image();
+      tex.crossOrigin = 'anonymous';
+      tex.onload  = function() { paint(tex); };
+      tex.onerror = function() { paint(null); };
+      tex.src = 'https://atalaya.com.mx/assets/textura/textura-piso.svg';
+    }
+
+    btn.addEventListener('click', drawProgressCard);
+  })();
+
+  /* ── HISTORIAL RATINGS ── */
+  (function() {
+    document.querySelectorAll('.hist-rate').forEach(function(btn) {
+      var key = 'atalaya-rate-' + btn.dataset.clase + '-' + btn.dataset.val;
+      /* restore saved state */
+      if (localStorage.getItem(key) === '1') btn.classList.add('active');
+
+      btn.addEventListener('click', function() {
+        var group = btn.closest('.historial-rating').querySelectorAll('.hist-rate');
+        group.forEach(function(b) {
+          var k = 'atalaya-rate-' + b.dataset.clase + '-' + b.dataset.val;
+          b.classList.remove('active');
+          localStorage.removeItem(k);
+        });
+        btn.classList.add('active');
+        localStorage.setItem(key, '1');
+        var emoji = btn.dataset.val === 'fire' ? '🔥 Guardado' : '👍 Guardado';
+        showToast(emoji);
+      });
+    });
+  })();
+
+  /* ── ATAJOS DE TECLADO GLOBALES ── */
+  document.addEventListener('keydown', function(e) {
+    var tag = document.activeElement.tagName;
+    /* no interferir cuando el usuario escribe */
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    if (e.key === ' ' || e.code === 'Space') {
+      /* toggle el primer play btn disponible */
+      e.preventDefault();
+      var playBtns = document.querySelectorAll('.wof-play[data-card]');
+      if (!playBtns.length) return;
+      /* si hay uno activo, hacer click en él (stop); si no, en el primero */
+      var active = document.querySelector('.wof-play.playing');
+      (active || playBtns[0]).click();
+      showToast(active ? '⏹ Pausado' : '▶ Reproduciendo');
+    }
+
+    if (e.key === 'Escape') {
+      var active = document.querySelector('.wof-play.playing');
+      if (active) { active.click(); showToast('⏹ Audio detenido'); }
+    }
+
+    if (e.key === '?') {
+      showToast('Espacio: play/stop · Esc: detener · Cmd+S: guardar notas');
+    }
+  });
+
+  /* ── LENIS SMOOTH SCROLL ── */
+  window.addEventListener('load', function() {
+    if (typeof Lenis === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var lenis = new Lenis({
+      duration: 1.05,
+      easing: function(t) { return 1 - Math.pow(1 - t, 3); },
+      smoothWheel: true,
+      smoothTouch: false
+    });
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        var id = a.getAttribute('href');
+        var target = document.querySelector(id);
+        if (target) { e.preventDefault(); lenis.scrollTo(target); }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
