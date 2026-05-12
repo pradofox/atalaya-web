@@ -26,6 +26,15 @@
       text-transform: uppercase;
     }
 
+    .nav-mute {
+      background: transparent; border: none;
+      color: var(--gris); font-size: .95rem;
+      cursor: pointer; padding: .25rem .4rem;
+      transition: color .15s; line-height: 1;
+    }
+    .nav-mute:hover { color: var(--lima); }
+    .nav-mute.muted { opacity: .4; }
+
     .nav-user { display: flex; align-items: center; gap: .75rem; }
     .user-info { text-align: right; }
     .user-name { font-size: .85rem; font-weight: 700; line-height: 1.2; }
@@ -251,6 +260,18 @@
     .wof-card.placeholder {
       background: transparent; border: 1px dashed rgba(237,242,244,.08); opacity: .45;
     }
+
+    /* ── WOF FAV ── */
+    .wof-fav {
+      width: 24px; height: 24px; flex-shrink: 0;
+      background: transparent; border: none;
+      color: var(--gris); font-size: 1rem;
+      cursor: pointer; transition: color .15s, transform .15s;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .wof-fav:hover { color: var(--lima); transform: scale(1.2); }
+    .wof-fav.active { color: var(--lima); }
 
     /* ── CERTIFICADO ── */
     .cert-intro { font-size: .82rem; color: var(--gris); margin-bottom: 1.25rem; max-width: 520px; }
@@ -645,6 +666,7 @@
     </a>
     <span class="nav-tag">PORTAL</span>
   </div>
+  <button class="nav-mute" id="nav-mute" aria-label="Silenciar audio" title="Silenciar audio">&#128266;</button>
   <div class="nav-user">
     <div class="user-info">
       <div class="user-name">Refu</div>
@@ -907,6 +929,23 @@
           <div class="logro-label">Primer Mix</div>
         </div>
 
+        <!-- FIEL: calendario -->
+        <div class="logro locked" id="logro-fiel" data-tip="Entra 3 días seguidos">
+          <div class="logro-icon">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <rect x="0"  y="4"  width="32" height="4"/>
+              <rect x="0"  y="8"  width="32" height="24"/>
+              <rect x="2"  y="8"  width="28" height="2" fill="#2b2d42"/>
+              <rect x="4"  y="0"  width="4"  height="8"/>
+              <rect x="24" y="0"  width="4"  height="8"/>
+              <rect x="4"  y="14" width="6"  height="6"/>
+              <rect x="13" y="14" width="6"  height="6"/>
+              <rect x="22" y="14" width="6"  height="6"/>
+            </svg>
+          </div>
+          <div class="logro-label">Fiel</div>
+        </div>
+
         <!-- PRODUCER: corona -->
         <div class="logro locked" data-tip="Termina el nivel Intermedio">
           <div class="logro-icon">
@@ -984,10 +1023,11 @@
             <div class="wof-track">Sin Mirar Atrás</div>
             <div class="wof-meta">Andrés M. &middot; Reggaeton &middot; Básico '24</div>
           </div>
-          <div class="wof-wave" id="wof-wave-0">
+            <div class="wof-wave" id="wof-wave-0">
             <span style="--i:0"></span><span style="--i:1"></span>
             <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
           </div>
+          <button class="wof-fav" data-card="0" aria-label="Favorito">&#9733;</button>
           <button class="wof-play" data-card="0" aria-label="Reproducir preview">&#9654;</button>
         </div>
 
@@ -1001,6 +1041,7 @@
             <span style="--i:0"></span><span style="--i:1"></span>
             <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
           </div>
+          <button class="wof-fav" data-card="1" aria-label="Favorito">&#9733;</button>
           <button class="wof-play" data-card="1" aria-label="Reproducir preview">&#9654;</button>
         </div>
 
@@ -1014,6 +1055,7 @@
             <span style="--i:0"></span><span style="--i:1"></span>
             <span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
           </div>
+          <button class="wof-fav" data-card="2" aria-label="Favorito">&#9733;</button>
           <button class="wof-play" data-card="2" aria-label="Reproducir preview">&#9654;</button>
         </div>
 
@@ -1185,6 +1227,15 @@
         <polygon fill="currentColor" points="451.43 469.04 274.27 469.04 274.27 563.65 451.43 563.65 451.43 658.27 451.43 752.88 362.85 752.88 362.85 847.5 274.27 847.5 274.27 942.11 451.43 942.11 451.43 847.5 540 847.5 628.57 847.5 628.57 942.11 805.73 942.11 805.73 847.5 717.15 847.5 717.15 752.88 628.58 752.88 628.58 658.27 628.58 563.65 805.73 563.65 805.73 469.04 628.58 469.04 451.43 469.04"/>
       </svg>
     </div>
+  </div>
+
+  <!-- RETO DEL DÍA -->
+  <div class="card reveal" style="border-left:3px solid rgba(199,239,0,.4);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <div>
+      <div class="card-label" style="margin-bottom:.2rem;color:var(--lima);">Reto del día</div>
+      <div id="reto-txt" style="font-size:.85rem;font-weight:600;"></div>
+    </div>
+    <a id="reto-link" href="/beat" class="btn-primary" style="flex-shrink:0;white-space:nowrap;">Abrir en Beat Builder &nearr;</a>
   </div>
 
   <!-- TIMER DE PRÁCTICA -->
@@ -1617,16 +1668,22 @@
         String(h).padStart(2,'0') + ':' +
         String(m).padStart(2,'0') + ':' +
         String(s).padStart(2,'0');
+      /* urgencia cuando falta menos de 30 min */
+      var mins = diff / 6e4;
+      el.style.color = mins < 30 ? (mins < 10 ? '#ff5050' : '#ffaa00') : '';
     }
     tick(); setInterval(tick, 1000);
   })();
 
   /* ── STATS COUNTERS ── */
   (function() {
+    /* Horas de práctica reales (localStorage + hardcoded default 24h) */
+    var practiceSecs = parseInt(localStorage.getItem('atalaya-practice-secs') || '0');
+    var practiceHrs  = Math.max(24, Math.round(practiceSecs / 3600));
     var STATS = [
-      { id: 'stat-horas', target: 24 },
+      { id: 'stat-horas', target: practiceHrs },
       { id: 'stat-beats', target: 12 },
-      { id: 'stat-racha', target: 3  }
+      { id: 'stat-racha', target: window._visitStreak || 1 }
     ];
     function animCounter(el, target, dur) {
       var start = null;
@@ -1655,6 +1712,7 @@
   /* ── WALL OF FAME AUDIO ── */
   (function() {
     var actx = null;
+    window._getAudioCtx = function() { return actx; };
     var timerID = null;
     var activeCard = -1;
     var step = 0;
@@ -2174,7 +2232,16 @@
       tex.src = 'https://atalaya.com.mx/assets/textura/textura-piso.svg';
     }
 
-    btn.addEventListener('click', drawProgressCard);
+    btn.addEventListener('click', function() {
+      drawProgressCard();
+      /* copy share caption to clipboard */
+      var caption = '¡Sigo avanzando en @academia.atalaya! Ya completé el Módulo 3 - Melodías y Armonía. Si quieres aprender a producir de verdad, entra a atalaya.com.mx\n#atalaya #produccionmusical #beatslatinos';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(caption).then(function() {
+          setTimeout(function() { showToast('&#10003; Caption listo en el portapapeles'); }, 900);
+        });
+      }
+    });
   })();
 
   /* ── HISTORIAL RATINGS ── */
@@ -2224,6 +2291,54 @@
     }
   }
 
+  /* ── VISIT STREAK ── */
+  (function() {
+    var TODAY     = new Date().toISOString().slice(0, 10);
+    var KEY_DAYS  = 'atalaya-visit-days';
+    var stored    = JSON.parse(localStorage.getItem(KEY_DAYS) || '[]');
+
+    /* add today if not present */
+    if (stored.indexOf(TODAY) === -1) stored.push(TODAY);
+    /* keep only last 30 days */
+    stored.sort();
+    if (stored.length > 30) stored = stored.slice(-30);
+    localStorage.setItem(KEY_DAYS, JSON.stringify(stored));
+
+    /* calculate current consecutive streak ending today */
+    var streak = 0;
+    var d = new Date(TODAY);
+    while (true) {
+      var dateStr = d.toISOString().slice(0, 10);
+      if (stored.indexOf(dateStr) === -1) break;
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+
+    /* update racha stat */
+    var rachaEl = document.getElementById('stat-racha');
+    if (rachaEl) {
+      /* override the animated counter target */
+      rachaEl.dataset.streak = streak;
+    }
+
+    /* unlock "Fiel" logro if streak >= 3 */
+    if (streak >= 3) {
+      var logroFiel = document.getElementById('logro-fiel');
+      if (logroFiel && logroFiel.classList.contains('locked')) {
+        logroFiel.classList.remove('locked');
+        logroFiel.classList.add('unlocked');
+        setTimeout(function() {
+          logroFiel.classList.add('pop-anim');
+          showToast('&#9733; Logro desbloqueado: Fiel - ' + streak + ' días seguidos');
+          playDing(true);
+        }, 1500);
+      }
+    }
+
+    /* show streak in racha */
+    window._visitStreak = streak;
+  })();
+
   /* ── EXPORTAR DATOS ── */
   (function() {
     var btn = document.getElementById('btn-export-data');
@@ -2253,6 +2368,79 @@
       setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
       showToast('&#10003; Datos exportados como JSON');
     });
+  })();
+
+  /* ── WOF FAVORITOS ── */
+  (function() {
+    document.querySelectorAll('.wof-fav[data-card]').forEach(function(btn) {
+      var key = 'atalaya-wof-fav-' + btn.dataset.card;
+      if (localStorage.getItem(key) === '1') btn.classList.add('active');
+      btn.addEventListener('click', function() {
+        var active = !btn.classList.contains('active');
+        btn.classList.toggle('active', active);
+        if (active) {
+          localStorage.setItem(key, '1');
+          showToast('&#9733; Guardado en favoritos');
+        } else {
+          localStorage.removeItem(key);
+          showToast('Quitado de favoritos');
+        }
+      });
+    });
+  })();
+
+  /* ── MOBILE NAV TRACKING ── */
+  (function() {
+    var navItems = document.querySelectorAll('.mob-nav-item[data-section]');
+    if (!navItems.length) return;
+
+    var sections = {
+      recursos: document.getElementById('recursos'),
+      wof:      document.getElementById('wof'),
+      beat:     document.getElementById('beat'),
+      cert:     document.getElementById('cert')
+    };
+
+    function setActive(section) {
+      navItems.forEach(function(item) {
+        item.classList.toggle('active', item.dataset.section === section);
+      });
+    }
+
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          var id = e.target.id;
+          setActive(id || 'top');
+        }
+      });
+    }, { threshold: 0.4 });
+
+    Object.values(sections).forEach(function(el) { if (el) obs.observe(el); });
+
+    /* Home nav item scrolls to top */
+    document.querySelector('.mob-nav-item[data-section="top"]').addEventListener('click', function(e) {
+      e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+
+  /* ── RETO DEL DÍA ── */
+  (function() {
+    var RETOS = [
+      { txt: 'Reggaeton puro: construye un beat de 95 BPM con solo kick, snare y 808. Sin melodía extra.', preset: 'REGGAETON' },
+      { txt: 'Trampa: haz trap a 140 BPM con hi-hats de 32 corcheas. Que sean uniformes y limpos.', preset: 'REGGAETON' },
+      { txt: 'Melodía minimalista: máximo 4 notas, máximo 3 instrumentos. 8 compases. Cuéntate una historia.', preset: null },
+      { txt: 'Afrobeats: patrón de batería afro a 100 BPM con kick sincopado y clave afrobeat.', preset: 'AFROBEATS' },
+      { txt: 'Corrido tumbado: beat lento (75 BPM), línea de acordeón y bajo marcando tiempos.', preset: 'CORRIDO' },
+      { txt: 'Lo más R&B posible en 15 min: groove suave, mélancolie, pura emoción.', preset: null },
+      { txt: 'Modo RETO: activa el secuenciador, elige un género al azar y termina el loop en 10 min.', preset: null }
+    ];
+    var d = new Date().getDate();
+    var r = RETOS[d % RETOS.length];
+    var txtEl  = document.getElementById('reto-txt');
+    var linkEl = document.getElementById('reto-link');
+    if (txtEl) txtEl.textContent = r.txt;
+    if (linkEl && r.preset) linkEl.href = '/beat?preset=' + r.preset + '&reto=1';
   })();
 
   /* ── QUOTE ROTATOR ── */
@@ -2372,7 +2560,14 @@
         running = true;
         toggleEl.innerHTML = '&#9646;&#9646; Pausar';
         toggleEl.style.cssText = '';  /* restore .btn-primary from HTML */
-        interval = setInterval(function() { secs++; valEl.textContent = fmt(secs); }, 1000);
+        interval = setInterval(function() {
+        secs++;
+        valEl.textContent = fmt(secs);
+        /* milestones: 15 min, 30 min, 1 hora */
+        if (secs === 900)  { launchConfetti(); showToast('&#9889; 15 minutos de práctica - ¡sigue!'); }
+        if (secs === 1800) { launchConfetti(); showToast('&#128293; 30 minutos - ¡modo bestia activado!'); }
+        if (secs === 3600) { launchConfetti(); launchConfetti(); showToast('&#127942; 1 hora de práctica - ¡leyenda!'); }
+      }, 1000);
       }
     });
 
@@ -2381,6 +2576,23 @@
       secs = 0; valEl.textContent = '00:00:00';
       toggleEl.innerHTML = '&#9654; Iniciar';
       toggleEl.style.cssText = '';
+    });
+
+    /* Pausar cuando el tab está oculto */
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && running) {
+        clearInterval(interval); interval = null;
+        valEl.style.opacity = '.4';
+      } else if (!document.hidden && running) {
+        interval = setInterval(function() {
+          secs++;
+          valEl.textContent = fmt(secs);
+          if (secs === 900)  { launchConfetti(); showToast('&#9889; 15 min de práctica'); }
+          if (secs === 1800) { launchConfetti(); showToast('&#128293; 30 min - ¡modo bestia!'); }
+          if (secs === 3600) { launchConfetti(); launchConfetti(); showToast('&#127942; 1 hora - ¡leyenda!'); }
+        }, 1000);
+        valEl.style.opacity = '1';
+      }
     });
   })();
 
@@ -2437,6 +2649,30 @@
         }
       }, msUntilRemind);
     }
+  })();
+
+  /* ── MUTE TOGGLE ── */
+  (function() {
+    var btn = document.getElementById('nav-mute');
+    if (!btn) return;
+    var muted = false;
+    btn.addEventListener('click', function() {
+      muted = !muted;
+      var ac = window._getAudioCtx ? window._getAudioCtx() : null;
+      if (muted) {
+        btn.innerHTML = '&#128263;';
+        btn.classList.add('muted');
+        if (ac && ac.state === 'running') ac.suspend();
+        showToast('Audio silenciado');
+      } else {
+        btn.innerHTML = '&#128266;';
+        btn.classList.remove('muted');
+        if (ac && ac.state === 'suspended') ac.resume();
+        showToast('Audio activado');
+      }
+    });
+    /* also handle Space key when muted */
+    window._isMuted = function() { return muted; };
   })();
 
   /* ── ATAJOS DE TECLADO GLOBALES ── */
