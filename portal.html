@@ -691,6 +691,16 @@
     </div>
   </div>
 
+  <!-- ONBOARDING TIP -->
+  <div class="card reveal" id="onboarding-tip" style="background:rgba(199,239,0,.04);border-color:rgba(199,239,0,.2);padding:.85rem 1.25rem;display:flex;align-items:flex-start;gap:.85rem;">
+    <div style="font-size:1rem;flex-shrink:0;line-height:1.4;">&#9432;</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:.78rem;font-weight:700;margin-bottom:.2rem;">Tu portal de Atalaya</div>
+      <div style="font-size:.72rem;color:var(--gris);line-height:1.6;">Practica con el Beat Builder, califica tus clases con 🔥/👍, apunta en tus notas (se guardan automáticamente) y descarga tu certificado cuando termines el nivel. Presiona <kbd style="font-family:var(--font-mono);font-size:9px;background:rgba(237,242,244,.1);padding:1px 5px;border:1px solid var(--divider);">?</kbd> para ver atajos de teclado.</div>
+    </div>
+    <button id="dismiss-tip" style="background:transparent;border:none;color:var(--gris);font-size:1.1rem;cursor:pointer;flex-shrink:0;padding:.1rem;line-height:1;transition:color .15s;" title="Cerrar" onmouseover="this.style.color='var(--lima)'" onmouseout="this.style.color='var(--gris)'">&#215;</button>
+  </div>
+
   <!-- STATS BAR -->
   <div class="stats-bar reveal">
     <div class="stat-item">
@@ -2290,6 +2300,30 @@
       })(i);
     }
   }
+
+  /* ── ONBOARDING TIP ── */
+  (function() {
+    var tip = document.getElementById('onboarding-tip');
+    var btn = document.getElementById('dismiss-tip');
+    if (!tip || !btn) return;
+
+    /* hide if already dismissed */
+    if (localStorage.getItem('atalaya-tip-dismissed') === '1') {
+      tip.style.display = 'none';
+    }
+
+    btn.addEventListener('click', function() {
+      tip.style.transition = 'opacity .3s, max-height .4s';
+      tip.style.opacity = '0';
+      tip.style.overflow = 'hidden';
+      tip.style.maxHeight = '0';
+      tip.style.padding = '0';
+      tip.style.margin = '0';
+      tip.style.border = 'none';
+      setTimeout(function() { tip.style.display = 'none'; }, 400);
+      localStorage.setItem('atalaya-tip-dismissed', '1');
+    });
+  })();
 
   /* ── VISIT STREAK ── */
   (function() {
