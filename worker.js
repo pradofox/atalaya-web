@@ -81,11 +81,10 @@ export default {
     const url = new URL(request.url);
     const { pathname, method } = { pathname: url.pathname, method: request.method };
 
-    /* app.atalaya.com.mx → sirve el portal en la raíz */
-    if (url.hostname === 'app.atalaya.com.mx') {
-      if (pathname === '/' || pathname === '') {
-        return Response.redirect('https://app.atalaya.com.mx/portal', 302);
-      }
+    /* app.atalaya.com.mx → sirve portal.html en la raíz (rewrite interno, sin redirect) */
+    if (url.hostname === 'app.atalaya.com.mx' && (pathname === '/' || pathname === '')) {
+      const rewritten = new Request(new URL('/portal', request.url).toString(), request);
+      return env.ASSETS.fetch(rewritten);
     }
 
     if (pathname === '/api/leads' && method === 'POST') return handleLeads(request, env);
