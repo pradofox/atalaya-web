@@ -81,16 +81,25 @@ export default {
     const url = new URL(request.url);
     const { pathname, method } = { pathname: url.pathname, method: request.method };
 
-    /* app.atalaya.com.mx → sirve portal.html en la raíz (rewrite interno, sin redirect) */
-    if (url.hostname === 'app.atalaya.com.mx' && (pathname === '/' || pathname === '')) {
-      const rewritten = new Request(new URL('/portal', request.url).toString(), request);
-      return env.ASSETS.fetch(rewritten);
-    }
-
+    /* API routes — funcionan en todos los dominios */
     if (pathname === '/api/leads' && method === 'POST') return handleLeads(request, env);
     if (pathname === '/api/campaign' && method === 'GET') return handleCampaignGet(env);
     if (pathname === '/api/campaign' && method === 'POST') return handleCampaignSet(request, env);
     if (pathname === '/api/admin/leads' && method === 'GET') return handleAdminLeads(request, env, url);
+
+    /* app.atalaya.com.mx → siempre sirve portal.html
+     * Excepción: archivos con extensión (svg, png, js, css, etc.) se sirven normal
+     * para que el portal pueda cargar sus assets sin problema */
+    if (url.hostname === 'app.atalaya.com.mx') {
+      const hasExt = /\.[a-z0-9]{1,6}$/i.test(pathname) && !/\.html?$/i.test(pathname);
+      if (!hasExt) {
+        const portalReq = new Request(
+          new URL('/portal.html', request.url).toString(),
+          { method: request.method, headers: request.headers }
+        );
+        return env.ASSETS.fetch(portalReq);
+      }
+    }
 
     return env.ASSETS.fetch(request);
   }
