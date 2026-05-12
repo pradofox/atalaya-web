@@ -1,14 +1,25 @@
 name = "atalaya-web"
+main = "worker.js"
 compatibility_date = "2026-04-01"
 account_id = "79b48e78b9db791957b966c527f8039a"
 
 routes = [
   { pattern = "atalaya.sopadeletras.art", custom_domain = true },
   { pattern = "atalaya.com.mx", custom_domain = true },
-  { pattern = "www.atalaya.com.mx", custom_domain = true }
+  { pattern = "www.atalaya.com.mx", custom_domain = true },
+  { pattern = "app.atalaya.com.mx", custom_domain = true }
 ]
 
 [assets]
 directory = "./"
 html_handling = "auto-trailing-slash"
 not_found_handling = "none"
+
+[[kv_namespaces]]
+binding = "CAMPAIGN"
+id = "17712efcb79c4810bc350414c2d0d59b"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "atalaya-db"
+database_id = "4d26f156-cefe-4cb0-83e7-2c702c46c9ca"

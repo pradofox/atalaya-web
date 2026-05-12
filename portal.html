@@ -594,6 +594,29 @@
     .back-top.visible { opacity: 1; transform: translateY(0); }
     .back-top:hover { background: rgba(199,239,0,.18); }
 
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--divider);
+      margin-bottom: 1.5rem;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase;
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      padding: .8rem 1.4rem; color: var(--gris);
+      cursor: pointer; white-space: nowrap;
+      margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--off); }
+    .tab-btn.active { color: var(--lima); border-bottom-color: var(--lima); }
+    .tab-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+    .tab-panel.hidden { display: none; }
+
     /* ── MOBILE BOTTOM NAV ── */
     .mobile-nav {
       display: none;
@@ -628,9 +651,8 @@
     @media (max-width: 680px) {
       .grid-2, .grid-equal { grid-template-columns: 1fr; }
       .portal-hero { flex-direction: column; }
-      .portal-main { padding: 80px 1rem 6rem; }
-      .mobile-nav { display: flex; }
-      body.player-open .mobile-nav { bottom: 52px; }
+      .portal-main { padding: 80px 1rem 4rem; }
+      .tab-btn { padding: .75rem .9rem; font-size: 10px; }
     }
   </style>
 </head>
@@ -678,6 +700,16 @@
       <button class="btn-ghost" id="btn-share-prog" title="Generar imagen de progreso">&#8599; Compartir progreso</button>
     </div>
   </div>
+
+  <!-- TAB NAV -->
+  <nav class="tab-nav" aria-label="Secciones del portal">
+    <button class="tab-btn active" data-tab="inicio">Inicio</button>
+    <button class="tab-btn" data-tab="recursos">Recursos</button>
+    <button class="tab-btn" data-tab="espacio">Mi espacio</button>
+  </nav>
+
+  <!-- TAB: INICIO -->
+  <div class="tab-panel" id="tab-inicio">
 
   <!-- ONBOARDING TIP -->
   <div class="card reveal" id="onboarding-tip" style="background:rgba(199,239,0,.04);border-color:rgba(199,239,0,.2);padding:.85rem 1.25rem;display:flex;align-items:flex-start;gap:.85rem;">
@@ -962,6 +994,11 @@
 
   </div>
 
+  </div><!-- /tab-inicio -->
+
+  <!-- TAB: RECURSOS -->
+  <div class="tab-panel hidden" id="tab-recursos">
+
   <!-- ROW 2: Recursos + Wall of Fame -->
   <div class="grid-equal" id="recursos" data-section="recursos">
 
@@ -1211,6 +1248,11 @@
     </div>
   </div>
 
+  </div><!-- /tab-recursos -->
+
+  <!-- TAB: MI ESPACIO -->
+  <div class="tab-panel hidden" id="tab-espacio">
+
   <!-- TIMER DE PRÁCTICA -->
   <div class="card reveal" style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;padding:1rem 1.5rem;">
     <div>
@@ -1330,6 +1372,8 @@
     </div>
   </div>
 
+  </div><!-- /tab-espacio -->
+
 </main>
 
 <!-- PORTAL FOOTER -->
@@ -1341,22 +1385,6 @@
   </div>
   <button id="btn-export-data" style="font-family:var(--font-mono);font-size:9px;color:var(--gris);letter-spacing:.06em;background:transparent;border:1px solid var(--divider);padding:.35rem .75rem;cursor:pointer;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='rgba(199,239,0,.3)';this.style.color='var(--lima)'" onmouseout="this.style.borderColor='var(--divider)';this.style.color='var(--gris)'">&#8595; Exportar mis datos</button>
 </footer>
-
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav" aria-label="Navegación rápida">
-  <a href="#" class="mob-nav-item active" data-section="top">
-    <span class="mob-nav-ico">&#127968;</span>Inicio
-  </a>
-  <a href="#recursos" class="mob-nav-item" data-section="recursos">
-    <span class="mob-nav-ico">&#128193;</span>Recursos
-  </a>
-  <a href="#wof" class="mob-nav-item" data-section="wof">
-    <span class="mob-nav-ico">&#9733;</span>Fame
-  </a>
-  <a href="#cert" class="mob-nav-item" data-section="cert">
-    <span class="mob-nav-ico">&#127942;</span>Cert
-  </a>
-</nav>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -2676,6 +2704,34 @@
       showToast('Espacio: play/stop · Esc: detener · Cmd+S: guardar notas');
     }
   });
+
+  /* ── TABS ── */
+  (function() {
+    var btns   = document.querySelectorAll('.tab-btn');
+    var panels = document.querySelectorAll('.tab-panel');
+
+    function switchTab(id) {
+      btns.forEach(function(b) { b.classList.toggle('active', b.dataset.tab === id); });
+      panels.forEach(function(p) { p.classList.toggle('hidden', p.id !== 'tab-' + id); });
+      /* disparar scroll reveal en el panel recién mostrado */
+      document.querySelectorAll('#tab-' + id + ' .reveal:not(.visible)').forEach(function(el) {
+        el.classList.add('visible');
+      });
+      localStorage.setItem('atalaya-tab', id);
+      /* scroll al top del contenido (no de la ventana completa) */
+      var main = document.querySelector('.portal-main');
+      if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() { switchTab(btn.dataset.tab); });
+    });
+
+    /* restaurar tab guardado */
+    var saved = localStorage.getItem('atalaya-tab') || 'inicio';
+    if (document.getElementById('tab-' + saved)) switchTab(saved);
+    else switchTab('inicio');
+  })();
 
   /* ── LENIS SMOOTH SCROLL ── */
   window.addEventListener('load', function() {
