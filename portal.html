@@ -2113,14 +2113,6 @@
           ctx.restore();
         }
 
-        /* -- franja lima superior (decorativa, en zona peligrosa - ok) -- */
-        ctx.fillStyle = '#c7ef00';
-        ctx.fillRect(0, 0, W, 8);
-
-        /* -- barra lima lateral izquierda -- */
-        ctx.fillStyle = '#c7ef00';
-        ctx.fillRect(0, 0, 8, H);
-
         /* -- gradiente sutil inferior para que el URL resalte -- */
         var grad = ctx.createLinearGradient(0, 1500, 0, H);
         grad.addColorStop(0, 'rgba(43,45,66,0)');
