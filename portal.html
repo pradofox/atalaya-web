@@ -2062,7 +2062,14 @@
     });
   })();
 
-  /* ── COMPARTIR PROGRESO (canvas 1080x1080) ── */
+  /* ── COMPARTIR PROGRESO (canvas 1080x1920 · historia 9:16) ── */
+  /*
+   * ZONAS SEGURAS WhatsApp/Instagram Stories:
+   *   Top:    ~170px  (barra de estado + barra de progreso de la historia)
+   *   Bottom: ~260px  (campo de respuesta + controles)
+   *   Lados:  ~60px   (UI de navegación entre historias)
+   *   → Contenido seguro: x[80..1000], y[200..1680]
+   */
   (function() {
     var btn = document.getElementById('btn-share-prog');
     if (!btn) return;
@@ -2078,136 +2085,207 @@
       '</g></svg>';
 
     function drawProgressCard() {
-      var S = 1080;
+      var W = 1080, H = 1920;
+      /* zonas seguras reales */
+      var SAFE_TOP  = 200;  /* primer px visible sin UI encima */
+      var SAFE_BOT  = 1680; /* último px visible sin UI encima */
+      var SAFE_L    = 80;
+      var SAFE_R    = W - 80;
+      var CX        = W / 2;
+
       var canvas = document.createElement('canvas');
-      canvas.width = S; canvas.height = S;
+      canvas.width = W; canvas.height = H;
       var ctx = canvas.getContext('2d');
 
       var wmBlob = new Blob([WM_SVG], { type: 'image/svg+xml' });
       var wmUrl  = URL.createObjectURL(wmBlob);
 
       function paint(texImg) {
-        /* bg */
+        /* -- bg -- */
         ctx.fillStyle = '#2b2d42';
-        ctx.fillRect(0, 0, S, S);
+        ctx.fillRect(0, 0, W, H);
 
-        /* textura */
+        /* -- textura -- */
         if (texImg) {
-          var tH = Math.round(S / 3.256);
-          ctx.save(); ctx.globalAlpha = 0.07;
-          for (var y = 0; y < S; y += tH) ctx.drawImage(texImg, 0, y, S, tH);
+          var tH = Math.round(W / 3.256);
+          ctx.save(); ctx.globalAlpha = 0.06;
+          for (var y = 0; y < H; y += tH) ctx.drawImage(texImg, 0, y, W, tH);
           ctx.restore();
         }
+
+        /* -- franja lima superior (decorativa, en zona peligrosa - ok) -- */
+        ctx.fillStyle = '#c7ef00';
+        ctx.fillRect(0, 0, W, 8);
+
+        /* -- barra lima lateral izquierda -- */
+        ctx.fillStyle = '#c7ef00';
+        ctx.fillRect(0, 0, 8, H);
+
+        /* -- gradiente sutil inferior para que el URL resalte -- */
+        var grad = ctx.createLinearGradient(0, 1500, 0, H);
+        grad.addColorStop(0, 'rgba(43,45,66,0)');
+        grad.addColorStop(1, 'rgba(10,12,20,0.6)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 1500, W, H - 1500);
 
         document.fonts.ready.then(function() {
           var wm = new Image();
           wm.onload = function() {
             ctx.textAlign = 'center';
 
-            /* borde lima izquierda */
-            ctx.fillStyle = '#c7ef00';
-            ctx.fillRect(0, 0, 8, S);
+            /* ─── ZONA SEGURA: empieza en y=200 ─── */
 
             /* wordmark */
-            var wmW = 400, wmH = Math.round(400 * 80 / 510);
-            ctx.drawImage(wm, (S - wmW) / 2, 130, wmW, wmH);
+            var wmW = 420, wmH = Math.round(420 * 80 / 510);
+            ctx.drawImage(wm, (W - wmW) / 2, 260, wmW, wmH);
             URL.revokeObjectURL(wmUrl);
 
-            /* academia */
-            ctx.font = '500 22px "Chivo Mono"';
-            ctx.fillStyle = 'rgba(237,242,244,0.25)';
-            ctx.fillText('ACADEMIA DE PRODUCCIÓN MUSICAL', S / 2, 248);
+            /* academia subtitle */
+            ctx.font = '600 20px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(237,242,244,0.22)';
+            ctx.letterSpacing = '0.12em';
+            ctx.fillText('ACADEMIA DE PRODUCCIÓN MUSICAL', CX, 392);
+            ctx.letterSpacing = '0';
 
             /* divider */
-            ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+            ctx.strokeStyle = 'rgba(237,242,244,0.10)';
             ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(200, 278); ctx.lineTo(880, 278); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(SAFE_L + 60, 420); ctx.lineTo(SAFE_R - 60, 420); ctx.stroke();
 
-            /* avatar círculo */
+            /* ── avatar ── */
+            var AY = 550;
+            /* glow */
+            ctx.save();
+            ctx.shadowColor = '#c7ef00';
+            ctx.shadowBlur  = 28;
             ctx.fillStyle = '#c7ef00';
-            ctx.beginPath(); ctx.arc(S / 2, 360, 56, 0, Math.PI * 2); ctx.fill();
-            ctx.font = '700 42px "Chivo Mono"';
+            ctx.beginPath(); ctx.arc(CX, AY, 66, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+            /* iniciales */
+            ctx.font = '700 44px "Chivo Mono"';
             ctx.fillStyle = '#2b2d42';
-            ctx.fillText('RF', S / 2, 376);
+            ctx.fillText('RF', CX, AY + 16);
 
             /* nombre */
-            ctx.font = '900 80px "Chivo"';
+            ctx.font = '900 96px "Chivo"';
             ctx.fillStyle = '#edf2f4';
-            ctx.fillText('Refu', S / 2, 506);
+            ctx.fillText('Refu', CX, 720);
 
             /* nivel tag */
-            var tagW = 340, tagH = 48, tagX = (S - tagW) / 2, tagY = 530;
-            ctx.fillStyle = 'rgba(199,239,0,0.1)';
+            var tagW = 320, tagH = 50, tagX = (W - tagW) / 2, tagY = 744;
+            ctx.fillStyle = 'rgba(199,239,0,0.10)';
             ctx.fillRect(tagX, tagY, tagW, tagH);
-            ctx.strokeStyle = 'rgba(199,239,0,0.35)';
+            ctx.strokeStyle = 'rgba(199,239,0,0.40)';
+            ctx.lineWidth = 1;
             ctx.strokeRect(tagX, tagY, tagW, tagH);
             ctx.font = '700 20px "Chivo Mono"';
             ctx.fillStyle = '#c7ef00';
-            ctx.fillText('NIV.2 · INTERMEDIO', S / 2, tagY + 31);
+            ctx.fillText('NIV.2 · INTERMEDIO', CX, tagY + 33);
 
-            /* stats 3 columnas */
+            /* ── stats 3 columnas ── */
             var stats = [
-              { val: '24', label: 'HRS DE CLASE' },
-              { val: '12', label: 'BEATS HECHOS' },
-              { val: '3',  label: 'SEM. SEGUIDAS' }
+              { val: '24', label: 'HRS\nDE CLASE' },
+              { val: '12', label: 'BEATS\nHECHOS' },
+              { val: '3',  label: 'SEM.\nSEGUIDAS' }
             ];
-            var colW = S / 3;
+            var statTop = 860, colW = W / 3;
+            /* fondo stats */
+            ctx.fillStyle = 'rgba(237,242,244,0.03)';
+            ctx.fillRect(0, statTop - 30, W, 220);
+
             stats.forEach(function(s, i) {
               var cx = colW * i + colW / 2;
-              /* separador */
               if (i > 0) {
                 ctx.strokeStyle = 'rgba(237,242,244,0.08)';
-                ctx.beginPath(); ctx.moveTo(colW * i, 630); ctx.lineTo(colW * i, 780); ctx.stroke();
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(colW * i, statTop); ctx.lineTo(colW * i, statTop + 180); ctx.stroke();
               }
-              ctx.font = '700 72px "Chivo Mono"';
+              /* número */
+              ctx.font = '700 80px "Chivo Mono"';
               ctx.fillStyle = '#c7ef00';
-              ctx.fillText(s.val, cx, 720);
-              ctx.font = '500 18px "Chivo Mono"';
-              ctx.fillStyle = 'rgba(237,242,244,0.32)';
-              ctx.fillText(s.label, cx, 758);
+              ctx.fillText(s.val, cx, statTop + 86);
+              /* label (2 líneas) */
+              var lines = s.label.split('\n');
+              ctx.font = '500 17px "Chivo Mono"';
+              ctx.fillStyle = 'rgba(237,242,244,0.30)';
+              lines.forEach(function(ln, li) {
+                ctx.fillText(ln, cx, statTop + 118 + li * 22);
+              });
             });
 
-            /* divider */
+            /* ── divider ── */
+            var divY = 1115;
             ctx.strokeStyle = 'rgba(237,242,244,0.08)';
-            ctx.beginPath(); ctx.moveTo(200, 800); ctx.lineTo(880, 800); ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(SAFE_L + 40, divY); ctx.lineTo(SAFE_R - 40, divY); ctx.stroke();
 
-            /* XP bar */
-            ctx.font = '500 20px "Chivo Mono"';
-            ctx.fillStyle = 'rgba(237,242,244,0.3)';
+            /* ── XP bar ── */
+            var barL = SAFE_L + 40, barR = SAFE_R - 40, barW = barR - barL;
+            ctx.font = '500 18px "Chivo Mono"';
             ctx.textAlign = 'left';
-            ctx.fillText('PROGRESO NIV.2', 200, 848);
+            ctx.fillStyle = 'rgba(237,242,244,0.28)';
+            ctx.fillText('PROGRESO NIV.2', barL, 1158);
             ctx.textAlign = 'right';
             ctx.fillStyle = '#c7ef00';
-            ctx.fillText('3 / 5 MOD.', 880, 848);
-
-            /* bar track */
-            ctx.fillStyle = 'rgba(237,242,244,0.06)';
-            ctx.fillRect(200, 860, 680, 14);
-            /* bar fill 60% */
-            ctx.fillStyle = '#c7ef00';
-            ctx.fillRect(200, 860, 680 * 0.6, 14);
-
-            /* logros */
+            ctx.fillText('3 / 5 MOD.', barR, 1158);
             ctx.textAlign = 'center';
-            ctx.font = '500 18px "Chivo Mono"';
-            ctx.fillStyle = 'rgba(237,242,244,0.2)';
-            ctx.fillText('LOGROS DESBLOQUEADOS', S / 2, 930);
+
+            ctx.fillStyle = 'rgba(237,242,244,0.06)';
+            ctx.fillRect(barL, 1170, barW, 12);
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillRect(barL, 1170, barW * 0.6, 12);
+
+            /* ── divider ── */
+            ctx.strokeStyle = 'rgba(237,242,244,0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(SAFE_L + 40, 1220); ctx.lineTo(SAFE_R - 40, 1220); ctx.stroke();
+
+            /* ── logros ── */
+            ctx.font = '500 17px "Chivo Mono"';
+            ctx.fillStyle = 'rgba(237,242,244,0.18)';
+            ctx.fillText('LOGROS DESBLOQUEADOS', CX, 1268);
 
             var logroLabels = ['BIENVENIDO', 'PRIMER BEAT'];
+            var logSpacing = 240;
+            var logStart   = CX - (logroLabels.length - 1) * logSpacing / 2;
             logroLabels.forEach(function(lb, i) {
-              var cx = S / 2 - 70 + i * 140;
+              var lcx = logStart + i * logSpacing;
+              /* chip bg */
+              var chipW = 200, chipH = 44;
+              ctx.fillStyle = 'rgba(199,239,0,0.07)';
+              ctx.fillRect(lcx - chipW / 2, 1288, chipW, chipH);
+              ctx.strokeStyle = 'rgba(199,239,0,0.20)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(lcx - chipW / 2, 1288, chipW, chipH);
               /* dot */
               ctx.fillStyle = '#c7ef00';
-              ctx.beginPath(); ctx.arc(cx, 968, 10, 0, Math.PI * 2); ctx.fill();
-              ctx.font = '400 16px "Chivo Mono"';
-              ctx.fillStyle = 'rgba(237,242,244,0.45)';
-              ctx.fillText(lb, cx, 1000);
+              ctx.beginPath(); ctx.arc(lcx - 70, 1312, 5, 0, Math.PI * 2); ctx.fill();
+              /* label */
+              ctx.font = '500 15px "Chivo Mono"';
+              ctx.fillStyle = 'rgba(237,242,244,0.50)';
+              ctx.textAlign = 'left';
+              ctx.fillText(lb, lcx - 58, 1316);
+              ctx.textAlign = 'center';
             });
 
-            /* url */
-            ctx.font = '500 24px "Chivo Mono"';
-            ctx.fillStyle = 'rgba(199,239,0,0.3)';
-            ctx.fillText('ATALAYA.COM.MX', S / 2, 1050);
+            /* ── quote / mensaje motivacional ── */
+            ctx.font = 'italic 600 28px "Chivo"';
+            ctx.fillStyle = 'rgba(199,239,0,0.55)';
+            ctx.fillText('"Producir es un idioma. Yo lo estoy aprendiendo."', CX, 1470);
+
+            /* ── URL · dentro de zona segura (y <= 1680) ── */
+            /* fondo pill */
+            var pillW = 420, pillH = 56, pillX = (W - pillW) / 2, pillY = 1600;
+            ctx.fillStyle = 'rgba(199,239,0,0.12)';
+            ctx.fillRect(pillX, pillY, pillW, pillH);
+            ctx.strokeStyle = 'rgba(199,239,0,0.30)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(pillX, pillY, pillW, pillH);
+            ctx.font = '600 22px "Chivo Mono"';
+            ctx.fillStyle = '#c7ef00';
+            ctx.fillText('ATALAYA.COM.MX', CX, pillY + 36);
+
+            /* ─── ZONA SEGURA: termina en y=1680 ─── */
 
             /* download */
             canvas.toBlob(function(blob) {
@@ -2216,7 +2294,7 @@
               a.href = url; a.download = 'Progreso Atalaya · Refu.png';
               document.body.appendChild(a); a.click(); document.body.removeChild(a);
               setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-              showToast('&#10003; Imagen de progreso descargada');
+              showToast('&#10003; Historia de progreso descargada');
             }, 'image/png');
           };
           wm.src = wmUrl;
