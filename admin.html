@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Atalaya</title>
+  <link rel="icon" href="/assets/logo/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@400;700&family=Chivo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1b2e;
+      --surface: #23243a;
+      --border: #2e3050;
+      --lima: #c8f135;
+      --text: #e8eaf0;
+      --muted: #7880a0;
+      --danger: #ff5555;
+      --success: #50fa7b;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Chivo', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+    .mono { font-family: 'Chivo Mono', monospace; }
+    h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; }
+    h2 { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+
+    /* layout */
+    header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-brand { display: flex; align-items: center; gap: .6rem; }
+    .header-tag { font-family: 'Chivo Mono', monospace; font-size: .7rem; color: var(--muted); background: var(--border); padding: .15rem .4rem; border-radius: 3px; }
+    main { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; gap: 1.5rem; }
+
+    /* cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+
+    /* login */
+    #login { max-width: 380px; margin: 4rem auto; }
+    #login h2 { font-size: 1rem; color: var(--text); margin-bottom: 1.5rem; }
+
+    /* forms */
+    label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .35rem; font-family: 'Chivo Mono', monospace; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="url"] {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text); font-family: 'Chivo Mono', monospace; font-size: .85rem;
+      padding: .5rem .75rem; outline: none;
+    }
+    input:focus { border-color: var(--lima); }
+    .field { margin-bottom: 1rem; }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 5px; border: none; cursor: pointer; font-family: 'Chivo Mono', monospace; font-size: .8rem; font-weight: 700; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn-lima { background: var(--lima); color: #1a1b2e; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: .3rem .7rem; font-size: .75rem; }
+
+    /* toggle */
+    .toggle-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: background .2s; }
+    .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: var(--muted); border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: var(--lima); }
+    input:checked + .slider::before { transform: translateX(20px); background: #1a1b2e; }
+    .toggle-label { font-size: .85rem; }
+    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 3px; font-family: 'Chivo Mono', monospace; font-size: .7rem; font-weight: 700; }
+    .badge-on { background: rgba(200,241,53,.15); color: var(--lima); }
+    .badge-off { background: rgba(120,128,160,.15); color: var(--muted); }
+
+    /* table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    th { font-family: 'Chivo Mono', monospace; font-size: .7rem; color: var(--muted); text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border); }
+    td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .empty { color: var(--muted); font-size: .85rem; text-align: center; padding: 2rem; }
+
+    /* alerts */
+    .alert { padding: .6rem 1rem; border-radius: 5px; font-size: .82rem; margin-bottom: 1rem; }
+    .alert-err { background: rgba(255,85,85,.1); color: var(--danger); border: 1px solid rgba(255,85,85,.2); }
+    .alert-ok { background: rgba(80,250,123,.1); color: var(--success); border: 1px solid rgba(80,250,123,.2); }
+
+    .row-actions { display: flex; gap: .5rem; align-items: center; }
+    .count { font-family: 'Chivo Mono', monospace; font-size: .75rem; color: var(--muted); }
+    .field-hint { font-size: .72rem; color: var(--muted); margin-top: .35rem; font-family: 'Chivo Mono', monospace; }
+    .label-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; }
+    .label-row label { margin-bottom: 0; }
+    .badge-default { font-size: .65rem; padding: .1rem .35rem; border-radius: 3px; background: rgba(200,241,53,.1); color: var(--lima); border: 1px solid rgba(200,241,53,.25); font-family: 'Chivo Mono', monospace; font-weight: 700; letter-spacing: .04em; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <svg style="height:22px;width:auto;color:var(--lima)" viewBox="140 355 510 80" xmlns="http://www.w3.org/2000/svg" aria-label="Atalaya">
+      <g fill="currentColor">
+        <polygon points="206.56 383.78 194.33 383.78 194.33 359.33 169.89 359.33 169.89 383.78 157.67 383.78 157.67 408.22 145.44 408.22 145.44 432.67 169.89 432.67 169.89 408.22 182.11 408.22 194.33 408.22 194.33 432.67 218.78 432.67 218.78 408.22 206.56 408.22 206.56 383.78"/>
+        <polygon points="353.22 383.78 341 383.78 341 359.33 316.56 359.33 316.56 383.78 304.33 383.78 304.33 408.22 292.11 408.22 292.11 432.67 316.56 432.67 316.56 408.22 328.78 408.22 341 408.22 341 432.67 365.44 432.67 365.44 408.22 353.22 408.22 353.22 383.78"/>
+        <polygon points="499.89 383.78 487.67 383.78 487.67 359.33 463.22 359.33 463.22 383.78 451 383.78 451 408.22 438.78 408.22 438.78 432.67 463.22 432.67 463.22 408.22 475.44 408.22 487.67 408.22 487.67 432.67 512.11 432.67 512.11 408.22 499.89 408.22 499.89 383.78"/>
+        <polygon points="634.33 408.22 634.33 383.78 622.11 383.78 622.11 359.33 597.67 359.33 597.67 383.78 585.44 383.78 585.44 408.22 573.22 408.22 573.22 432.67 597.67 432.67 597.67 408.22 609.89 408.22 622.11 408.22 622.11 432.67 646.56 432.67 646.56 408.22 634.33 408.22"/>
+        <polygon points="573.22 359.33 548.78 359.33 548.78 383.78 536.56 383.78 536.56 359.33 512.11 359.33 512.11 383.78 530.44 383.78 530.44 408.22 530.44 432.67 554.89 432.67 554.89 408.22 554.89 383.78 573.22 383.78 573.22 359.33"/>
+        <polygon points="292.11 359.33 267.67 359.33 243.22 359.33 218.78 359.33 218.78 383.78 243.22 383.78 243.22 408.22 243.22 432.67 267.67 432.67 267.67 408.22 267.67 383.78 292.11 383.78 292.11 359.33"/>
+        <polygon points="402.11 383.78 402.11 359.33 377.67 359.33 377.67 383.78 377.67 408.22 377.67 432.67 402.11 432.67 426.56 432.67 426.56 408.22 402.11 408.22 402.11 383.78"/>
+      </g>
+    </svg>
+    <span class="header-tag mono">admin</span>
+  </div>
+  <span id="logout-btn" style="margin-left:auto; cursor:pointer; font-size:.8rem; color:var(--muted);" onclick="logout()">Cerrar sesion</span>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen" class="card" id="login" style="max-width:380px;margin:4rem auto;">
+  <h2 style="font-size:1rem;color:var(--text);margin-bottom:1.5rem;">Acceso admin</h2>
+  <div id="login-err"></div>
+  <div class="field">
+    <label>Contrasena</label>
+    <input type="password" id="pw-input" placeholder="••••••••" />
+  </div>
+  <button class="btn btn-lima" onclick="doLogin()">Entrar</button>
+</div>
+
+<!-- PANEL -->
+<main id="panel" style="display:none;">
+
+  <!-- CAMPAIGN -->
+  <div class="card">
+    <h2>Campana de inscripciones</h2>
+    <div id="campaign-alert"></div>
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="camp-active" onchange="saveCampaign()" />
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">Inscripciones</span>
+      <span id="camp-badge" class="badge badge-off">inactivo</span>
+    </div>
+    <div class="field">
+      <label>Texto de fecha</label>
+      <input type="text" id="camp-date" placeholder="" />
+      <p class="field-hint">↑ vacío = mes en curso automáticamente</p>
+    </div>
+    <div class="field">
+      <div class="label-row">
+        <label>Link del formulario</label>
+        <span class="badge-default">fijo</span>
+      </div>
+      <input type="url" id="camp-link" />
+      <p class="field-hint">↑ link fijo de inscripciones - puedes cambiarlo si es necesario</p>
+    </div>
+    <button class="btn btn-lima" onclick="saveCampaign()">Guardar cambios</button>
+  </div>
+
+  <!-- LEADS -->
+  <div class="card">
+    <h2>Correos del sample pack</h2>
+    <div id="leads-alert"></div>
+    <div class="row-actions" style="margin-bottom:1rem;">
+      <span id="leads-count" class="count">cargando...</span>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Exportar CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadLeads()">Actualizar</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body">
+          <tr><td colspan="4" class="empty">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  var TOKEN = '';
+
+  function logout() {
+    TOKEN = '';
+    localStorage.removeItem('atalaya_admin');
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+  }
+
+  async function doLogin() {
+    var pw = document.getElementById('pw-input').value.trim();
+    if (!pw) return;
+    var res = await fetch('/api/campaign', { headers: { 'Authorization': 'Bearer ' + pw } });
+    // campaign GET is public - test with admin endpoint
+    var testRes = await fetch('/api/admin/leads', { headers: { 'Authorization': 'Bearer ' + pw } });
+    if (testRes.status === 401) {
+      showAlert('login-err', 'Contrasena incorrecta', 'err');
+      return;
+    }
+    TOKEN = pw;
+    localStorage.setItem('atalaya_admin', pw);
+    showPanel();
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function showAlert(containerId, msg, type) {
+    var el = document.getElementById(containerId);
+    el.innerHTML = '<div class="alert alert-' + (type === 'err' ? 'err' : 'ok') + '">' + msg + '</div>';
+    setTimeout(function() { el.innerHTML = ''; }, 3000);
+  }
+
+  async function showPanel() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('panel').style.display = 'grid';
+    await loadCampaign();
+    await loadLeads();
+  }
+
+  var TALLY_URL = 'https://tally.so/r/nWWPPa';
+
+  function currentMonthLabel() {
+    var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    var now = new Date();
+    return meses[now.getMonth()] + ' ' + now.getFullYear();
+  }
+
+  async function loadCampaign() {
+    var res = await fetch('/api/campaign');
+    var data = await res.json();
+    document.getElementById('camp-active').checked = !!data.active;
+    document.getElementById('camp-date').value = data.date || '';
+    document.getElementById('camp-date').placeholder = currentMonthLabel();
+    document.getElementById('camp-link').value = data.link || TALLY_URL;
+    updateBadge(!!data.active);
+  }
+
+  function updateBadge(active) {
+    var badge = document.getElementById('camp-badge');
+    badge.textContent = active ? 'activo' : 'inactivo';
+    badge.className = 'badge ' + (active ? 'badge-on' : 'badge-off');
+  }
+
+  async function saveCampaign() {
+    var payload = {
+      active: document.getElementById('camp-active').checked,
+      date: document.getElementById('camp-date').value.trim(),
+      link: document.getElementById('camp-link').value.trim()
+    };
+    var res = await fetch('/api/campaign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      showAlert('campaign-alert', 'Guardado', 'ok');
+      updateBadge(payload.active);
+    } else {
+      showAlert('campaign-alert', 'Error guardando', 'err');
+    }
+  }
+
+  async function loadLeads() {
+    var res = await fetch('/api/admin/leads', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    if (!res.ok) { showAlert('leads-alert', 'Error cargando leads', 'err'); return; }
+    var data = await res.json();
+    var count = document.getElementById('leads-count');
+    count.textContent = data.length + ' registro' + (data.length === 1 ? '' : 's');
+    var tbody = document.getElementById('leads-body');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">Sin registros todavia</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(function(r) {
+      return '<tr><td class="mono">' + r.id + '</td><td>' + esc(r.name) + '</td><td class="mono">' + esc(r.email) + '</td><td class="mono">' + r.created_at.slice(0,10) + '</td></tr>';
+    }).join('');
+  }
+
+  async function exportCSV() {
+    var res = await fetch('/api/admin/leads?format=csv', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    if (!res.ok) { showAlert('leads-alert', 'Error exportando', 'err'); return; }
+    var blob = await res.blob();
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'leads-atalaya.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // auto-login if session stored
+  (function() {
+    var stored = localStorage.getItem('atalaya_admin');
+    if (stored) {
+      document.getElementById('pw-input').value = stored;
+      TOKEN = stored;
+      // validate token
+      fetch('/api/admin/leads', { headers: { 'Authorization': 'Bearer ' + stored } }).then(function(r) {
+        if (r.ok) { showPanel(); } else { localStorage.removeItem('atalaya_admin'); }
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

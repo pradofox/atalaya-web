@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
-Sitemap: https://atalaya.sopadeletras.art/sitemap.xml
+Sitemap: https://atalaya.com.mx/sitemap.xml

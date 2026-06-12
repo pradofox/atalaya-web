@@ -12,16 +12,16 @@
   <meta property="og:site_name" content="Atalaya" />
   <meta property="og:title" content="Atalaya - Academia de música urbana en Monterrey" />
   <meta property="og:description" content="Cursos de producción, mezcla y máster con Refugee. Grupos chicos, atención personalizada, sample pack incluido." />
-  <meta property="og:image" content="https://atalaya.sopadeletras.art/assets/logo/atalaya-academia.png" />
-  <meta property="og:url" content="https://atalaya.sopadeletras.art/" />
+  <meta property="og:image" content="https://atalaya.com.mx/assets/logo/atalaya-academia.png" />
+  <meta property="og:url" content="https://atalaya.com.mx/" />
   <meta property="og:locale" content="es_MX" />
 
-  <link rel="canonical" href="https://atalaya.sopadeletras.art/" />
+  <link rel="canonical" href="https://atalaya.com.mx/" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Atalaya - Academia de música urbana en Monterrey" />
   <meta name="twitter:description" content="Cursos de producción, mezcla y máster con Refugee." />
-  <meta name="twitter:image" content="https://atalaya.sopadeletras.art/assets/logo/atalaya-academia.png" />
+  <meta name="twitter:image" content="https://atalaya.com.mx/assets/logo/atalaya-academia.png" />
 
   <link rel="icon" href="/assets/logo/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/logo/favicon.png" />
@@ -31,21 +31,165 @@
   <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=1" />
+  <style>
+    /* campaign tab */
+    .campaign-tab {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #c8f135;
+      color: #1a1b2e;
+      writing-mode: vertical-rl;
+      padding: .9rem .45rem;
+      border-radius: 6px 0 0 6px;
+      z-index: 999;
+      text-decoration: none;
+      font-family: 'Chivo Mono', monospace;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: -2px 0 12px rgba(200,241,53,.25);
+    }
+    .campaign-tab:hover {
+      transform: translateY(-50%) translateX(-4px);
+      box-shadow: -4px 0 18px rgba(200,241,53,.4);
+    }
+
+    /* sample pack form */
+    .pack-form { display: flex; flex-direction: column; gap: .75rem; max-width: 420px; }
+    .pack-fields { display: flex; flex-direction: column; gap: .5rem; }
+    .pack-input {
+      background: transparent;
+      border: 1px solid var(--border, rgba(255,255,255,.15));
+      border-radius: 5px;
+      color: inherit;
+      font-family: 'Chivo Mono', monospace;
+      font-size: .85rem;
+      padding: .6rem .9rem;
+      outline: none;
+      width: 100%;
+    }
+    .pack-input:focus { border-color: var(--lima, #c8f135); }
+    .pack-error { font-size: .8rem; color: #ff6b6b; margin-top: .25rem; }
+    .pack-success-msg { font-size: .9rem; margin-bottom: .75rem; opacity: .8; }
+
+    /* faq accordion */
+    .faq-list { display: grid; gap: 0; max-width: 720px; margin: 2.5rem auto 0; padding: 0 var(--page-px, 1.5rem); }
+    .faq-details { border-bottom: 1px solid var(--border, rgba(255,255,255,.1)); }
+    .faq-details:first-child { border-top: 1px solid var(--border, rgba(255,255,255,.1)); }
+    .faq-details > summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.1rem 0; font-size: .95rem; font-weight: 600;
+      user-select: none; transition: color .15s;
+    }
+    .faq-details > summary::-webkit-details-marker { display: none; }
+    .faq-details > summary:hover { color: var(--lima, #c8f135); }
+    .faq-details[open] > summary { color: var(--lima, #c8f135); }
+    .faq-details[open] > summary .summary-icon::after { transform: translateY(-50%) rotate(0deg); }
+    .faq-answer { padding-bottom: 1.1rem; opacity: .72; line-height: 1.65; animation: details-fade .2s ease; }
+    .faq-answer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+    /* footer socials */
+    .footer-socials { margin-top: .5rem; display: flex; flex-wrap: wrap; gap: .3rem .5rem; align-items: center; }
+    .footer-socials a { color: inherit; text-decoration: none; opacity: .7; }
+    .footer-socials a:hover { opacity: 1; }
+  </style>
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    "name": "Atalaya",
-    "alternateName": "Academia Atalaya",
-    "url": "https://atalaya.sopadeletras.art",
-    "description": "Academia de música urbana en Monterrey. Cursos de producción, mezcla y máster con Refugee.",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Monterrey",
-      "addressRegion": "Nuevo León",
-      "addressCountry": "MX"
-    }
+    "@graph": [
+      {
+        "@type": "EducationalOrganization",
+        "name": "Atalaya",
+        "alternateName": "Academia Atalaya",
+        "url": "https://atalaya.com.mx",
+        "description": "Academia de música urbana en Monterrey. Cursos de producción, mezcla y máster con Refugee en grupos de máximo 10 alumnos.",
+        "numberOfStudents": 200,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Monterrey",
+          "addressRegion": "Nuevo León",
+          "addressCountry": "MX"
+        },
+        "sameAs": ["https://www.instagram.com/academia.atalaya/"],
+        "hasCourse": [
+          {
+            "@type": "Course",
+            "name": "Producción Basic",
+            "description": "Introducción a FL Studio: herramientas, atajos, mentalidad de productor. Para quien arranca de cero.",
+            "provider": { "@type": "Organization", "name": "Atalaya" },
+            "courseMode": "online",
+            "duration": "P4W",
+            "offers": { "@type": "Offer", "price": "3000", "priceCurrency": "MXN" }
+          },
+          {
+            "@type": "Course",
+            "name": "Producción Avanzada",
+            "description": "Para productores que ya manejan FL Studio y quieren mejorar calidad y cantidad de producciones por semana.",
+            "provider": { "@type": "Organization", "name": "Atalaya" },
+            "courseMode": "online",
+            "duration": "P4W",
+            "offers": { "@type": "Offer", "price": "3000", "priceCurrency": "MXN" }
+          },
+          {
+            "@type": "Course",
+            "name": "Mix & Máster",
+            "description": "Compresión, ecualización, mezcla y masterización. Incluye stems de una canción real para practicar.",
+            "provider": { "@type": "Organization", "name": "Atalaya" },
+            "courseMode": "online",
+            "duration": "P4W",
+            "offers": { "@type": "Offer", "price": "3000", "priceCurrency": "MXN" }
+          }
+        ]
+      },
+      {
+        "@type": "Person",
+        "name": "Refugee",
+        "alternateName": "Gera",
+        "jobTitle": "Productor musical",
+        "description": "Productor activo de la escena urbana del norte de México. Fundador y maestro de Atalaya Academia.",
+        "sameAs": [
+          "https://www.instagram.com/itsrefugee/",
+          "https://www.tiktok.com/@refurefurefu"
+        ],
+        "worksFor": { "@type": "Organization", "name": "Atalaya" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "¿Cuánto cuesta el curso de producción en Atalaya?",
+            "acceptedAnswer": { "@type": "Answer", "text": "$3,000 MXN por curso, diferible en 2 pagos quincenales de $1,500 cada uno." }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Necesito experiencia previa para tomar un curso en Atalaya?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Atalaya ofrece 3 niveles: Producción Basic para principiantes sin experiencia, Producción Avanzada para quien ya maneja FL Studio, y Mix & Máster abierto a cualquier nivel." }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Los cursos de Atalaya son online o presenciales?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Son 100% online vía Zoom, en grupos de máximo 10 alumnos, 2 sesiones de 2 horas por semana durante 4 semanas." }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Qué software se usa en los cursos de Atalaya?",
+            "acceptedAnswer": { "@type": "Answer", "text": "FL Studio es el software principal de todos los cursos, desde nivel básico hasta técnicas avanzadas de producción, mezcla y masterización." }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Quién es el maestro de Atalaya?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Refugee (Gera), productor activo de la escena urbana del norte de México con más de 200 alumnos formados. @itsrefugee en Instagram y @refurefurefu en TikTok." }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -102,6 +246,8 @@
             <span>Monterrey, MX</span>
             <span class="dot">●</span>
             <span>Online vía Zoom</span>
+            <span class="dot">●</span>
+            <span>+200 alumnos</span>
           </div>
         </div>
       </div>
@@ -148,6 +294,8 @@
           <figcaption>
             <span>maestro</span>
             <strong>refu</strong>
+            <a href="https://www.instagram.com/itsrefugee/" target="_blank" rel="noopener">@itsrefugee →</a>
+            <a href="https://www.tiktok.com/@refurefurefu" target="_blank" rel="noopener">@refurefurefu →</a>
           </figcaption>
         </figure>
       </div>
@@ -378,20 +526,98 @@
       <div class="cta-card">
         <span class="label">06 / Reserva tu lugar</span>
         <h2 class="cta-title">Da el primer paso.</h2>
-        <p class="cta-sub">Cuéntanos qué curso te interesa y te confirmamos disponibilidad del próximo grupo.</p>
+        <p class="cta-sub">Llena el formulario, sube tu comprobante de pago y queda inscrito. Cupos limitados a 10 alumnos por grupo.</p>
         <div class="cta-actions">
-          <a href="https://www.instagram.com/academia.atalaya/" target="_blank" rel="noopener" class="btn btn-primary" data-cta="instagram">
-            <span>DM por Instagram</span>
+          <a href="https://tally.so/r/nWWPPa" target="_blank" rel="noopener" class="btn btn-primary" data-cta="inscripcion">
+            <span>Formulario de inscripcion</span>
             <span aria-hidden="true">→</span>
           </a>
-          <a href="mailto:atalayamusicmx@gmail.com?subject=Quiero%20info%20de%20cursos%20Atalaya" class="btn btn-ghost" data-cta="email">
-            <span>atalayamusicmx@gmail.com</span>
+          <a href="https://www.instagram.com/academia.atalaya/" target="_blank" rel="noopener" class="btn btn-ghost" data-cta="instagram">
+            <span>DM por Instagram</span>
             <span aria-hidden="true">→</span>
           </a>
         </div>
         <p class="cta-foot mono">
           Tu música ya tiene algo que decir. En Atalaya te ayudamos a darle forma, dirección y fuerza.
         </p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section-faq">
+      <div class="row">
+        <div class="col-label">
+          <span class="label">07 / FAQ</span>
+        </div>
+        <div class="col-body">
+          <h2 class="section-title">Preguntas frecuentes.</h2>
+        </div>
+      </div>
+      <div class="faq-list">
+        <details class="faq-details">
+          <summary>¿Cuánto cuesta el curso? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">$3,000 MXN por curso. Se puede diferir en 2 pagos quincenales de $1,500.</p>
+        </details>
+        <details class="faq-details">
+          <summary>¿Necesito experiencia previa? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">No. Hay 3 niveles: <strong>Basic</strong> para quien arranca de cero, <strong>Avanzada</strong> para quien ya maneja FL Studio, y <strong>Mix &amp; Máster</strong> para cualquier nivel.</p>
+        </details>
+        <details class="faq-details">
+          <summary>¿Es online o presencial? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">100% online vía Zoom. Grupos de máximo 10 alumnos, 2 sesiones de 2 horas por semana.</p>
+        </details>
+        <details class="faq-details">
+          <summary>¿Qué software usan? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">FL Studio. Al final de cada sesión recibes el archivo .FLP para abrirlo directo en tu computadora.</p>
+        </details>
+        <details class="faq-details">
+          <summary>¿Quién da las clases? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">Refugee (Gera), productor activo de la escena urbana del norte de México con más de 200 alumnos formados. Puedes ver su trabajo en <a href="https://www.instagram.com/itsrefugee/" target="_blank" rel="noopener">@itsrefugee</a> y <a href="https://www.tiktok.com/@refurefurefu" target="_blank" rel="noopener">@refurefurefu</a>.</p>
+        </details>
+        <details class="faq-details">
+          <summary>¿Qué pasa si no puedo en los horarios? <span class="summary-icon" aria-hidden="true"></span></summary>
+          <p class="faq-answer">Si no acomodan 11am-1pm ni 4pm-6pm, se puede abrir un grupo en horario diferente según demanda. Escríbenos y lo coordinamos.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- SAMPLE PACK -->
+    <section class="section section-intro">
+      <div class="row row-with-figure">
+        <div class="col-label">
+          <span class="label">08 / Sample Pack</span>
+        </div>
+        <div class="col-body">
+          <h2 class="section-title">Refu Drumkit Esencial.</h2>
+          <p>Los sonidos con los que Refugee produce. Descárgalo gratis - solo deja tu nombre y correo.</p>
+          <div id="pack-wrap" style="margin-top:1.5rem;">
+            <form id="pack-form" class="pack-form" novalidate>
+              <div class="pack-fields">
+                <input type="text" name="name" class="pack-input" placeholder="Tu nombre" required autocomplete="name" />
+                <input type="email" name="email" class="pack-input" placeholder="Tu correo" required autocomplete="email" />
+              </div>
+              <button type="submit" class="btn btn-primary" style="align-self:flex-start;">
+                <span>Descargar gratis</span>
+                <span aria-hidden="true">→</span>
+              </button>
+              <p id="pack-error" class="pack-error" hidden></p>
+            </form>
+            <div id="pack-success" hidden>
+              <p class="pack-success-msg">Listo. Haz click para descargar:</p>
+              <a id="pack-dl-link" href="#" target="_blank" rel="noopener" class="btn btn-primary">
+                <span>Descargar Refu Drumkit</span>
+                <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <figure class="col-figure">
+          <img src="/assets/fotos/refu-drumkit.png" alt="Refu Drumkit Esencial - portada del sample pack de Refugee" loading="lazy" width="1080" height="1080" style="clip-path:none;object-fit:contain;aspect-ratio:1/1;" />
+          <figcaption>
+            <span>sample pack</span>
+            <strong>refu drumkit</strong>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
@@ -402,6 +628,13 @@
       <div class="footer-brand">
         <span class="mono small">by Refugee</span>
         <p class="small">Atalaya es un ecosistema de música: <strong>Academia · Publishing · Label &amp; Imprints</strong>. Sé tu artista favorito.</p>
+        <div class="footer-socials mono small">
+          <a href="https://www.instagram.com/academia.atalaya/" target="_blank" rel="noopener">@academia.atalaya</a>
+          <span class="dot">·</span>
+          <a href="https://www.instagram.com/itsrefugee/" target="_blank" rel="noopener">@itsrefugee</a>
+          <span class="dot">·</span>
+          <a href="https://www.tiktok.com/@refurefurefu" target="_blank" rel="noopener">@refurefurefu</a>
+        </div>
       </div>
       <div class="footer-meta mono small">
         <span>© Atalaya 2026</span>
@@ -410,18 +643,7 @@
     </div>
   </footer>
 
-  <script>
-    // toggle de tema (default: dark, override via toggle / prefers-color-scheme: light)
-    (function(){
-      try {
-        var stored = localStorage.getItem('atalaya-theme');
-        var sysLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        if (stored === 'light' || (!stored && sysLight)) {
-          document.documentElement.classList.add('light');
-        }
-      } catch(e){}
-    })();
-  </script>
+  <a id="campaign-tab" href="https://tally.so/r/nWWPPa" target="_blank" rel="noopener" class="campaign-tab" style="display:none;" aria-label="Inscripciones abiertas">Inscripciones · <span id="campaign-tab-date"></span></a>
 
   <script>
     // hero scene: dino-style jump + spawn obstacles + collision flash
@@ -495,6 +717,67 @@
         requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
+    })();
+  </script>
+
+  <script>
+    // campaign tab
+    fetch('/api/campaign').then(function(r){ return r.json(); }).then(function(d){
+      if (!d.active) return;
+      var tab = document.getElementById('campaign-tab');
+      var dateEl = document.getElementById('campaign-tab-date');
+      if (d.date) {
+        dateEl.textContent = d.date;
+      } else {
+        var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        var now = new Date();
+        dateEl.textContent = meses[now.getMonth()] + ' ' + now.getFullYear();
+      }
+      if (d.link) tab.href = d.link;
+      tab.style.display = 'block';
+    }).catch(function(){});
+
+    // sample pack form
+    (function(){
+      var form = document.getElementById('pack-form');
+      var success = document.getElementById('pack-success');
+      var errEl = document.getElementById('pack-error');
+      var dlLink = document.getElementById('pack-dl-link');
+      if (!form) return;
+
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var name = form.elements['name'].value.trim();
+        var email = form.elements['email'].value.trim();
+        if (!name || !email) return;
+
+        var btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.querySelector('span').textContent = 'Enviando...';
+        errEl.hidden = true;
+
+        fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email })
+        }).then(function(r){ return r.json(); }).then(function(d){
+          if (d.url) {
+            dlLink.href = d.url;
+            form.hidden = true;
+            success.hidden = false;
+          } else {
+            errEl.textContent = d.error || 'Algo salio mal, intenta de nuevo.';
+            errEl.hidden = false;
+            btn.disabled = false;
+            btn.querySelector('span').textContent = 'Descargar gratis';
+          }
+        }).catch(function(){
+          errEl.textContent = 'Error de conexion, intenta de nuevo.';
+          errEl.hidden = false;
+          btn.disabled = false;
+          btn.querySelector('span').textContent = 'Descargar gratis';
+        });
+      });
     })();
   </script>
 
