@@ -3,13 +3,39 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Beat Builder — Atalaya</title>
+  <title>Beat Builder - Atalaya</title>
   <meta name="description" content="El piano roll interactivo de Atalaya. Cada polígono del logo es una nota. Dibuja tu beat." />
   <meta name="theme-color" content="#2b2d42" />
   <link rel="icon" href="/assets/logo/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .campaign-tab {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #c8f135;
+      color: #1a1b2e;
+      writing-mode: vertical-rl;
+      padding: .9rem .45rem;
+      border-radius: 6px 0 0 6px;
+      z-index: 999;
+      text-decoration: none;
+      font-family: 'Chivo Mono', monospace;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: -2px 0 12px rgba(200,241,53,.25);
+    }
+    .campaign-tab:hover {
+      transform: translateY(-50%) translateX(-4px);
+      box-shadow: -4px 0 18px rgba(200,241,53,.4);
+    }
+  </style>
   <style>
     /* === TOKENS === */
     :root {
@@ -264,7 +290,7 @@
     .ts-btn:hover { color: var(--lima); }
     .ts-btn.active { background: var(--lima); color: var(--azul); }
 
-    .preset-btns { display: flex; gap: 0.5rem; }
+    .preset-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .btn-preset {
       background: transparent;
       color: var(--lima);
@@ -280,6 +306,16 @@
     .btn-preset:hover { background: var(--lima); color: var(--azul); }
     .btn-clear { border-color: var(--gris); color: var(--gris); }
     .btn-clear:hover { background: var(--gris); color: var(--azul); }
+    .btn-reto { border-color: #ff9f43; color: #ff9f43; }
+    .btn-reto:hover, .btn-reto.active-reto { background: #ff9f43; color: var(--azul); }
+    .btn-sm { font-size: .62rem; padding: .3rem .6rem; }
+    .challenge-panel {
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+      padding: .5rem 0;
+      font-size: .72rem; font-family: 'Chivo Mono', monospace; color: var(--gris);
+    }
+    .challenge-actions { display: flex; gap: .4rem; }
+    .score-display { font-weight: 700; color: var(--lima); font-size: .85rem; }
 
     /* === CTA === */
     .beat-cta {
@@ -298,6 +334,27 @@
       transition: background .15s;
     }
     .btn-primary:hover { background: #d4f220; }
+
+    .synth-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .synth-label { font-size: .62rem; color: var(--gris); letter-spacing: .08em; }
+    .synth-btns {
+      display: flex; border: 1px solid var(--divider); border-radius: 3px; overflow: hidden; flex-wrap: wrap;
+    }
+    .synth-btn {
+      background: transparent; color: var(--gris);
+      border: none; border-right: 1px solid var(--divider);
+      font-family: 'Chivo Mono', monospace; font-size: .62rem; font-weight: 700;
+      letter-spacing: .06em; padding: .38rem .65rem;
+      transition: background .15s, color .15s; cursor: pointer;
+    }
+    .synth-btn:last-child { border-right: none; }
+    .synth-btn:hover { color: var(--lima); }
+    .synth-btn.active { background: var(--lima); color: var(--azul); }
+
+    .beat-cta-btns { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+    .btn-share { border-color: var(--gris); color: var(--gris); }
+    .btn-share:hover { background: var(--gris); color: var(--azul); }
+    .btn-share.copied { border-color: var(--lima) !important; color: var(--lima) !important; background: transparent !important; }
 
     /* === FOOTER === */
     footer {
@@ -357,13 +414,38 @@
     </div>
     <div class="preset-btns">
       <button class="btn-preset" id="btn-atalaya">ATALAYA</button>
+      <button class="btn-preset" id="btn-corrido">CORRIDO</button>
+      <button class="btn-preset" id="btn-reggaeton">REGGAETON</button>
+      <button class="btn-preset" id="btn-afro">AFROBEATS</button>
       <button class="btn-preset btn-clear" id="btn-clear">CLEAR</button>
+      <button class="btn-preset btn-reto" id="btn-reto">★ RETO</button>
+    </div>
+    <div class="synth-row">
+      <span class="synth-label">SYNTH</span>
+      <div class="synth-btns" role="group" aria-label="Timbre del sintetizador">
+        <button class="synth-btn active" data-synth="atalaya">DEFAULT</button>
+        <button class="synth-btn" data-synth="corrido">ACORDEON</button>
+        <button class="synth-btn" data-synth="reggaeton">PLUCK</button>
+        <button class="synth-btn" data-synth="afrobeats">MARIMBA</button>
+      </div>
+    </div>
+    <div id="challenge-panel" style="display:none;" class="challenge-panel">
+      <span>Reto <strong id="challenge-genre"></strong> · solo kick y hat →</span>
+      <div class="challenge-actions">
+        <button class="btn-preset btn-sm" id="btn-reveal">Revelar</button>
+        <button class="btn-preset btn-sm" id="btn-score">Puntos</button>
+        <button class="btn-preset btn-clear btn-sm" id="btn-end-reto">✕ Salir</button>
+      </div>
+      <span id="score-display" class="score-display"></span>
     </div>
   </div>
 
   <div class="beat-cta">
     <p>¿Quieres aprender a producir esto?</p>
-    <a href="/" class="btn-primary">VER CURSOS →</a>
+    <div class="beat-cta-btns">
+      <a href="/" class="btn-primary">VER CURSOS →</a>
+      <button id="btn-share" class="btn-preset btn-share">COMPARTIR ↗</button>
+    </div>
   </div>
 
 </main>
@@ -614,6 +696,8 @@
   }
 
   function loadAtalaya() {
+    currentSynth = 'atalaya';
+    updateSynthUI();
     clearAll();
     /* Draw letterforms — cada letra es 3×3 con su propio rowOffset */
     for (const ld of cfg.letters) {
@@ -631,6 +715,216 @@
     applyDrumPreset();
   }
 
+  /* ── GENRE PRESETS ── */
+  const GENRE_BPMS = { 'CORRIDO': 78, 'REGGAETON': 95, 'AFROBEATS': 108 };
+
+  const GENRE_PRESETS = {
+    'CORRIDO': {
+      melody: [
+        [3,0],[4,1],[5,2], [4,4],[3,5],[4,6],
+        [5,8],[4,9],[5,10], [4,12],[5,13],[4,14],
+        [3,16],[4,17],[5,18], [4,20],[3,21],[4,22],
+        [5,24],[4,25],[5,26], [4,28],[5,29],[4,30],
+      ],
+      kick: [0,5,8,13,16,21,24],
+      hat:  [2,4,6,9,10,12,14,17,18,20,22,25,26,28,30],
+    },
+    'REGGAETON': {
+      melody: [
+        [3,0],[4,2], [3,4],[4,5],[3,6],
+        [3,8],[4,10], [3,12],[4,13],[3,14],
+        [3,16],[4,18], [3,20],[4,21],[3,22],
+        [3,24],[4,26], [3,28],[4,29],[3,30],
+      ],
+      kick: [0,5,8,13,16,21,24,29],
+      hat:  [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30],
+    },
+    'AFROBEATS': {
+      melody: [
+        [1,0],[2,2], [1,4],[2,5],[1,6],
+        [2,8],[1,9], [1,12],[2,13],[3,14],
+        [1,16],[2,18], [1,20],[2,21],[1,22],
+        [2,24],[3,25], [1,28],[2,29],[1,30],
+      ],
+      kick: [0,9,16,25],
+      hat:  [2,4,6,10,12,14,18,20,22,26,28,30],
+    },
+  };
+
+  function setBpm(bpm) {
+    const inp = document.getElementById('bpm-input');
+    const lbl = document.getElementById('bpm-val');
+    if (inp) { inp.value = bpm; }
+    if (lbl) { lbl.textContent = bpm + ' BPM'; }
+  }
+
+  function loadGenrePreset(name) {
+    if (timeSig !== '4/4') document.querySelector('.ts-btn[data-ts="4/4"]')?.click();
+    clearAll();
+    const p = GENRE_PRESETS[name];
+    if (!p) return;
+    const COLS = getCols();
+    p.melody.forEach(([r, c]) => {
+      if (r < ROWS && c < COLS && !isGap(c)) {
+        melodyState[r][c] = 1; mCells[r][c]?.classList.add('on');
+      }
+    });
+    p.kick.forEach(c => { if (c < COLS && !isGap(c)) { kickState[c] = 1; kCells[c]?.classList.add('on'); } });
+    p.hat.forEach(c  => { if (c < COLS && !isGap(c)) { hatState[c]  = 1; hCells[c]?.classList.add('on'); } });
+    if (GENRE_BPMS[name]) setBpm(GENRE_BPMS[name]);
+    currentSynth = name.toLowerCase(); /* activa el timbre del género */
+    updateSynthUI();
+  }
+
+  /* ── SYNTH MODE ── */
+  let currentSynth = 'atalaya'; /* 'atalaya' | 'corrido' | 'reggaeton' | 'afrobeats' */
+
+  function updateSynthUI() {
+    document.querySelectorAll('.synth-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.synth === currentSynth);
+    });
+  }
+
+  /* ── CHALLENGE MODE ── */
+  let challengeMode   = false;
+  let challengeMelody = null;
+  let challengeKick   = null;
+  let challengeHat    = null;
+
+  function startChallenge() {
+    const names = Object.keys(GENRE_PRESETS);
+    const name  = names[Math.floor(Math.random() * names.length)];
+    loadGenrePreset(name);
+    const COLS = getCols();
+    // Reto: solo kick y hat — más fácil de oír y recrear
+    challengeMelody = Array.from({ length: ROWS }, () => new Uint8Array(COLS)); // vacío
+    challengeKick   = new Uint8Array(kickState);
+    challengeHat    = new Uint8Array(hatState);
+    clearAll();
+    challengeMode = true;
+    initAudio();
+    if (!isPlaying) document.getElementById('play-btn')?.click();
+    document.getElementById('challenge-genre').textContent = name;
+    document.getElementById('challenge-panel').style.display = 'flex';
+    document.getElementById('score-display').textContent = '';
+    document.getElementById('btn-reto').classList.add('active-reto');
+  }
+
+  function revealChallenge() {
+    if (!challengeMode || !challengeMelody) return;
+    clearAll();
+    challengeMelody.forEach((row, r) => {
+      row.forEach((v, c) => { if (v) { melodyState[r][c] = 1; mCells[r][c]?.classList.add('on'); } });
+    });
+    challengeKick.forEach((v, c) => { if (v) { kickState[c] = 1; kCells[c]?.classList.add('on'); } });
+    challengeHat.forEach((v,  c) => { if (v) { hatState[c]  = 1; hCells[c]?.classList.add('on'); } });
+  }
+
+  function scoreChallenge() {
+    if (!challengeMode || !challengeKick) return;
+    const COLS = getCols();
+    let correct = 0, total = 0;
+    for (let c = 0; c < COLS; c++) {
+      if (isGap(c)) continue;
+      total += 2;
+      if (kickState[c] === challengeKick[c]) correct++;
+      if (hatState[c]  === challengeHat[c])  correct++;
+    }
+    const pct = Math.round(correct / total * 100);
+    const msg = pct >= 90 ? '🔥 ' + pct + '%' : pct >= 70 ? '👍 ' + pct + '%' : pct + '% - sigue intentando';
+    document.getElementById('score-display').textContent = msg;
+  }
+
+  function endChallenge() {
+    challengeMode = false;
+    currentSynth = 'atalaya';
+    updateSynthUI();
+    challengeMelody = challengeKick = challengeHat = null;
+    document.getElementById('challenge-panel').style.display = 'none';
+    document.getElementById('score-display').textContent = '';
+    document.getElementById('btn-reto').classList.remove('active-reto');
+  }
+
+  /* ── SHARE / SERIALIZE ── */
+  function serializeState() {
+    const COLS  = getCols();
+    const bits  = ROWS * COLS;
+    const bytes = new Uint8Array(Math.ceil(bits / 8));
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (melodyState[r][c]) {
+          const idx = r * COLS + c;
+          bytes[idx >> 3] |= (1 << (idx & 7));
+        }
+      }
+    }
+    let bin = '';
+    bytes.forEach(function(b) { bin += String.fromCharCode(b); });
+    const m = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    let kn = 0, hn = 0;
+    for (let c = 0; c < COLS && c < 32; c++) {
+      if (kickState[c]) kn |= (1 << c);
+      if (hatState[c])  hn |= (1 << c);
+    }
+    const bpm = document.getElementById('bpm-input').value;
+    const p = new URLSearchParams({
+      ts:  timeSig,
+      bpm: bpm,
+      m:   m,
+      k:   (kn >>> 0).toString(16).padStart(8, '0'),
+      h:   (hn >>> 0).toString(16).padStart(8, '0')
+    });
+    return location.origin + '/beat?' + p.toString();
+  }
+
+  function deserializeState(params) {
+    const ts   = params.get('ts') || '4/4';
+    const bpm  = parseInt(params.get('bpm')) || 120;
+    const m    = params.get('m');
+    const kStr = params.get('k');
+    const hStr = params.get('h');
+
+    if (ts !== timeSig) {
+      const tsBtn = document.querySelector('.ts-btn[data-ts="' + ts + '"]');
+      if (tsBtn) tsBtn.click(); /* rebuilds grids + state */
+    }
+    setBpm(bpm);
+    clearAll();
+
+    const COLS = getCols();
+    if (m) {
+      try {
+        const b64    = m.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = b64 + '==='.slice(0, (4 - b64.length % 4) % 4);
+        const bin    = atob(padded);
+        const bytes  = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const idx = r * COLS + c;
+            if (bytes[idx >> 3] & (1 << (idx & 7))) {
+              melodyState[r][c] = 1;
+              if (mCells[r] && mCells[r][c]) mCells[r][c].classList.add('on');
+            }
+          }
+        }
+      } catch(e) {}
+    }
+    if (kStr) {
+      const kn = parseInt(kStr, 16);
+      for (let c = 0; c < COLS && c < 32; c++) {
+        if (kn & (1 << c)) { kickState[c] = 1; if (kCells[c]) kCells[c].classList.add('on'); }
+      }
+    }
+    if (hStr) {
+      const hn = parseInt(hStr, 16);
+      for (let c = 0; c < COLS && c < 32; c++) {
+        if (hn & (1 << c)) { hatState[c] = 1; if (hCells[c]) hCells[c].classList.add('on'); }
+      }
+    }
+  }
+
   /* Resize state arrays to match current cfg.cols. Called on time-sig change. */
   function resizeState() {
     const COLS = getCols();
@@ -640,25 +934,97 @@
   }
 
   /* ── AUDIO ── */
+
+  /* Dispatcher — elige el timbre según el género activo */
   function scheduleNote(time, freq) {
+    if (currentSynth === 'corrido')   { scheduleNoteCorrido(time, freq);   return; }
+    if (currentSynth === 'reggaeton') { scheduleNoteReggaeton(time, freq); return; }
+    if (currentSynth === 'afrobeats') { scheduleNoteAfrobeats(time, freq); return; }
+    scheduleNoteDefault(time, freq);
+  }
+
+  /* Default — triangle + sine (cálido, genérico) */
+  function scheduleNoteDefault(time, freq) {
     const ac = audioCtx;
     const g  = ac.createGain();
     g.gain.setValueAtTime(0, time);
     g.gain.linearRampToValueAtTime(0.28, time + 0.008);
     g.gain.exponentialRampToValueAtTime(0.001, time + 0.48);
     g.connect(ac.destination);
-
-    /* Triangle wave — warm overtones */
     const o1 = ac.createOscillator();
     o1.type = 'triangle';
     o1.frequency.setValueAtTime(freq, time);
     o1.connect(g); o1.start(time); o1.stop(time + 0.5);
-
-    /* Slight chorus detune */
     const o2 = ac.createOscillator();
     o2.type = 'sine';
     o2.frequency.setValueAtTime(freq * 1.004, time);
     o2.connect(g); o2.start(time); o2.stop(time + 0.5);
+  }
+
+  /* Corrido — acordeón: dos square ligeramente desafinados, sostenido */
+  function scheduleNoteCorrido(time, freq) {
+    const ac = audioCtx;
+    const g  = ac.createGain();
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.13, time + 0.018); /* ataque lento de fuelle */
+    g.gain.setValueAtTime(0.13, time + 0.09);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.44);
+    g.connect(ac.destination);
+    const o1 = ac.createOscillator();
+    o1.type = 'square'; /* square = armónicos impares = timbre de acordeón */
+    o1.frequency.setValueAtTime(freq, time);
+    o1.connect(g); o1.start(time); o1.stop(time + 0.47);
+    const o2 = ac.createOscillator();
+    o2.type = 'square';
+    o2.frequency.setValueAtTime(freq * 0.997, time); /* beat de fuelle */
+    o2.connect(g); o2.start(time); o2.stop(time + 0.47);
+  }
+
+  /* Reggaeton — pluck sintetizado: ataque instantáneo, caída rápida */
+  function scheduleNoteReggaeton(time, freq) {
+    const ac = audioCtx;
+    const g  = ac.createGain();
+    g.gain.setValueAtTime(0.30, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.20);
+    g.connect(ac.destination);
+    const o1 = ac.createOscillator();
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(freq * 1.012, time);
+    o1.frequency.exponentialRampToValueAtTime(freq, time + 0.035); /* pitch drop de ataque */
+    o1.connect(g); o1.start(time); o1.stop(time + 0.22);
+    /* Brillo inicial con sawtooth */
+    const gb = ac.createGain();
+    gb.gain.setValueAtTime(0.09, time);
+    gb.gain.exponentialRampToValueAtTime(0.001, time + 0.055);
+    gb.connect(ac.destination);
+    const ob = ac.createOscillator();
+    ob.type = 'sawtooth';
+    ob.frequency.setValueAtTime(freq, time);
+    ob.connect(gb); ob.start(time); ob.stop(time + 0.06);
+  }
+
+  /* Afrobeats — marimba / kalimba: fundamental + partial superior que decae rápido */
+  function scheduleNoteAfrobeats(time, freq) {
+    const ac = audioCtx;
+    const g1 = ac.createGain();
+    g1.gain.setValueAtTime(0, time);
+    g1.gain.linearRampToValueAtTime(0.30, time + 0.002); /* ataque percusivo */
+    g1.gain.exponentialRampToValueAtTime(0.001, time + 0.40);
+    g1.connect(ac.destination);
+    const o1 = ac.createOscillator();
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(freq, time);
+    o1.connect(g1); o1.start(time); o1.stop(time + 0.42);
+    /* Partial a ~2.76x — característico del marimba, decae en 70ms */
+    const g2 = ac.createGain();
+    g2.gain.setValueAtTime(0, time);
+    g2.gain.linearRampToValueAtTime(0.12, time + 0.001);
+    g2.gain.exponentialRampToValueAtTime(0.001, time + 0.07);
+    g2.connect(ac.destination);
+    const o2 = ac.createOscillator();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(freq * 2.76, time);
+    o2.connect(g2); o2.start(time); o2.stop(time + 0.08);
   }
 
   function scheduleKick(time) {
@@ -715,12 +1081,15 @@
       const step = currentStep;
       const t    = nextTime;
 
-      /* Schedule notes */
+      /* Schedule notes — in challenge mode, play the hidden pattern */
+      const ms = challengeMode ? challengeMelody : melodyState;
+      const ks = challengeMode ? challengeKick   : kickState;
+      const hs = challengeMode ? challengeHat    : hatState;
       for (let r = 0; r < ROWS; r++) {
-        if (melodyState[r][step]) scheduleNote(t, FREQS[r]);
+        if (ms[r][step]) scheduleNote(t, FREQS[r]);
       }
-      if (kickState[step]) scheduleKick(t);
-      if (hatState[step])  scheduleHat(t);
+      if (ks[step]) scheduleKick(t);
+      if (hs[step]) scheduleHat(t);
 
       /* Schedule visual step indicator */
       const delay = (t - audioCtx.currentTime) * 1000;
@@ -803,8 +1172,23 @@
   bpmInput.addEventListener('input', () => { bpmVal.textContent = bpmInput.value + ' BPM'; });
 
   /* Buttons */
-  document.getElementById('btn-atalaya').addEventListener('click', () => { initAudio(); loadAtalaya(); });
-  document.getElementById('btn-clear').addEventListener('click', clearAll);
+  document.getElementById('btn-atalaya').addEventListener('click',   () => { initAudio(); endChallenge(); loadAtalaya(); setBpm(120); });
+  document.getElementById('btn-corrido').addEventListener('click',   () => { initAudio(); endChallenge(); loadGenrePreset('CORRIDO'); });
+  document.getElementById('btn-reggaeton').addEventListener('click', () => { initAudio(); endChallenge(); loadGenrePreset('REGGAETON'); });
+  document.getElementById('btn-afro').addEventListener('click',      () => { initAudio(); endChallenge(); loadGenrePreset('AFROBEATS'); });
+  document.getElementById('btn-clear').addEventListener('click',     () => { endChallenge(); clearAll(); });
+  document.getElementById('btn-reto').addEventListener('click',      startChallenge);
+  document.getElementById('btn-reveal').addEventListener('click',    revealChallenge);
+  document.getElementById('btn-score').addEventListener('click',     scoreChallenge);
+  document.getElementById('btn-end-reto').addEventListener('click',  endChallenge);
+
+  /* Synth selector manual */
+  document.querySelectorAll('.synth-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentSynth = btn.dataset.synth;
+      updateSynthUI();
+    });
+  });
 
   /* Time signature toggle — rebuild grid + state when compás changes */
   document.querySelectorAll('.ts-btn').forEach(btn => {
@@ -828,8 +1212,50 @@
   buildGrids();
   applyAccents();
   loadAtalaya();
+
+  /* Load shared state from URL if present */
+  (function() {
+    const params = new URLSearchParams(location.search);
+    if (params.has('m') || params.has('k') || params.has('h')) {
+      deserializeState(params);
+    }
+  })();
+
+  /* Share button */
+  document.getElementById('btn-share').addEventListener('click', function() {
+    var btn = this;
+    var url = serializeState();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() {
+        btn.textContent = '¡COPIADO!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'COMPARTIR ↗'; btn.classList.remove('copied'); }, 2000);
+      }).catch(function() { prompt('Copia el link:', url); });
+    } else {
+      prompt('Copia el link:', url);
+    }
+  });
 })();
 </script>
+
+  <a id="campaign-tab" href="https://tally.so/r/nWWPPa" target="_blank" rel="noopener" class="campaign-tab" style="display:none;" aria-label="Inscripciones abiertas">Inscripciones · <span id="campaign-tab-date"></span></a>
+
+  <script>
+    fetch('/api/campaign').then(function(r){ return r.json(); }).then(function(d){
+      if (!d.active) return;
+      var tab = document.getElementById('campaign-tab');
+      var dateEl = document.getElementById('campaign-tab-date');
+      if (d.date) {
+        dateEl.textContent = d.date;
+      } else {
+        var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        var now = new Date();
+        dateEl.textContent = meses[now.getMonth()] + ' ' + now.getFullYear();
+      }
+      if (d.link) tab.href = d.link;
+      tab.style.display = 'block';
+    }).catch(function(){});
+  </script>
 
 </body>
 </html>

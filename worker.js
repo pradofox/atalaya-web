@@ -62,9 +62,15 @@ async function handleAdminLeads(request, env, url) {
   ).all();
 
   if (url.searchParams.get('format') === 'csv') {
+    /* Escapa comillas y neutraliza inyección de fórmulas (=,+,-,@) al abrir en Excel */
+    const cell = (v) => {
+      let s = String(v ?? '');
+      if (/^[=+\-@]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
     const rows = ['id,nombre,correo,fecha', ...results.map(r =>
-      `${r.id},"${r.name}","${r.email}","${r.created_at}"`
-    )].join('\n');
+      [r.id, cell(r.name), cell(r.email), cell(r.created_at)].join(',')
+    )].join('\r\n');
     return new Response(rows, {
       headers: {
         'Content-Type': 'text/csv',
@@ -87,14 +93,16 @@ export default {
     if (pathname === '/api/campaign' && method === 'POST') return handleCampaignSet(request, env);
     if (pathname === '/api/admin/leads' && method === 'GET') return handleAdminLeads(request, env, url);
 
-    /* app.atalaya.com.mx → siempre sirve portal.html
-     * Excepción: archivos con extensión (svg, png, js, css, etc.) se sirven normal
-     * para que el portal pueda cargar sus assets sin problema */
+    /* app.atalaya.com.mx → siempre sirve el portal.
+     * Se pide "/portal" (URL canónica bajo html_handling=auto-trailing-slash);
+     * pedir "/portal.html" devolvería un 307 al canónico y rompería el rewrite.
+     * Excepción: archivos con extensión (svg, png, js, css…) pasan directo
+     * para que el portal cargue sus assets. */
     if (url.hostname === 'app.atalaya.com.mx') {
       const hasExt = /\.[a-z0-9]{1,6}$/i.test(pathname) && !/\.html?$/i.test(pathname);
       if (!hasExt) {
         const portalReq = new Request(
-          new URL('/portal.html', request.url).toString(),
+          new URL('/portal', request.url).toString(),
           { method: request.method, headers: request.headers }
         );
         return env.ASSETS.fetch(portalReq);

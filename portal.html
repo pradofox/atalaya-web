@@ -617,24 +617,6 @@
     .tab-panel { display: flex; flex-direction: column; gap: 1.25rem; }
     .tab-panel.hidden { display: none; }
 
-    /* ── MOBILE BOTTOM NAV ── */
-    .mobile-nav {
-      display: none;
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 140;
-      background: var(--azul); border-top: 1px solid var(--divider);
-      justify-content: space-around; padding: .5rem 0 max(.5rem, env(safe-area-inset-bottom));
-    }
-    .mob-nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      background: transparent; border: none; cursor: pointer;
-      padding: .2rem .5rem;
-      color: var(--gris); text-decoration: none;
-      font-family: var(--font-mono); font-size: 8px; letter-spacing: .04em;
-      text-transform: uppercase; transition: color .15s;
-    }
-    .mob-nav-item.active, .mob-nav-item:hover { color: var(--lima); }
-    .mob-nav-ico { font-size: 1rem; line-height: 1; }
-
     /* ── CONFETTI ── */
     @keyframes confetti-fall {
       0%   { transform: translateY(-40px) rotate(0deg); opacity: 1; }
@@ -1430,7 +1412,7 @@
       'html,body{width:297mm;height:210mm;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;}',
       '.cert{width:297mm;height:210mm;background:#2b2d42;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}',
       '.textura{position:absolute;inset:0;',
-        'background-image:url("https://atalaya.com.mx/assets/textura/textura-piso.svg");',
+        'background-image:url("/assets/textura/textura-piso.svg");',
         'background-repeat:repeat;',
         'background-size:374mm 115mm;',
         'opacity:0.07;pointer-events:none;}',
@@ -1631,7 +1613,7 @@
     tex.crossOrigin = 'anonymous';
     tex.onload  = function() { paint(tex); };
     tex.onerror = function() { paint(null); };
-    tex.src = 'https://atalaya.com.mx/assets/textura/textura-piso.svg';
+    tex.src = '/assets/textura/textura-piso.svg';
   }
 
   btnStory.addEventListener('click', generateStory);
@@ -1678,10 +1660,12 @@
     /* Horas de práctica reales (localStorage + hardcoded default 24h) */
     var practiceSecs = parseInt(localStorage.getItem('atalaya-practice-secs') || '0');
     var practiceHrs  = Math.max(24, Math.round(practiceSecs / 3600));
+    /* target puede ser función para resolverse al momento de disparar
+       (la racha se calcula en otro IIFE que corre después de este) */
     var STATS = [
       { id: 'stat-horas', target: practiceHrs },
       { id: 'stat-beats', target: 12 },
-      { id: 'stat-racha', target: window._visitStreak || 1 }
+      { id: 'stat-racha', target: function() { return window._visitStreak || 1; } }
     ];
     function animCounter(el, target, dur) {
       var start = null;
@@ -1698,7 +1682,8 @@
         fired = true;
         STATS.forEach(function(s) {
           var el = document.getElementById(s.id);
-          if (el) animCounter(el, s.target, 900);
+          var t = typeof s.target === 'function' ? s.target() : s.target;
+          if (el) animCounter(el, t, 900);
         });
         obs.disconnect();
       }
@@ -2297,7 +2282,7 @@
       tex.crossOrigin = 'anonymous';
       tex.onload  = function() { paint(tex); };
       tex.onerror = function() { paint(null); };
-      tex.src = 'https://atalaya.com.mx/assets/textura/textura-piso.svg';
+      tex.src = '/assets/textura/textura-piso.svg';
     }
 
     btn.addEventListener('click', function() {
@@ -2481,42 +2466,7 @@
     });
   })();
 
-  /* ── MOBILE NAV TRACKING ── */
-  (function() {
-    var navItems = document.querySelectorAll('.mob-nav-item[data-section]');
-    if (!navItems.length) return;
-
-    var sections = {
-      recursos: document.getElementById('recursos'),
-      wof:      document.getElementById('wof'),
-      beat:     document.getElementById('beat'),
-      cert:     document.getElementById('cert')
-    };
-
-    function setActive(section) {
-      navItems.forEach(function(item) {
-        item.classList.toggle('active', item.dataset.section === section);
-      });
-    }
-
-    var obs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          var id = e.target.id;
-          setActive(id || 'top');
-        }
-      });
-    }, { threshold: 0.4 });
-
-    Object.values(sections).forEach(function(el) { if (el) obs.observe(el); });
-
-    /* Home nav item scrolls to top */
-    document.querySelector('.mob-nav-item[data-section="top"]').addEventListener('click', function(e) {
-      e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-
-/* ── QUOTE ROTATOR ── */
+  /* ── QUOTE ROTATOR ── */
   (function() {
     var QUOTES = [
       { txt: 'Un beat terminado siempre va a superar a un beat perfecto en tu cabeza.', by: 'REFUGEE · Fundador Atalaya' },
@@ -2533,7 +2483,7 @@
     if (!txtEl) return;
     var q = QUOTES[new Date().getDate() % QUOTES.length];
     txtEl.textContent = '"' + q.txt + '"';
-    byEl.textContent  = '— ' + q.by;
+    byEl.textContent  = '- ' + q.by;
   })();
 
   /* ── TAREA COMPLETADA ── */

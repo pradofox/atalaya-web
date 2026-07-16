@@ -11,9 +11,14 @@ routes = [
 ]
 
 [assets]
+binding = "ASSETS"
 directory = "./"
 html_handling = "auto-trailing-slash"
 not_found_handling = "none"
+# Solo la raíz "/" invoca el worker antes de servir assets; el resto de las
+# rutas sirven su asset directo. Así app.atalaya.com.mx/ puede reescribirse al
+# portal sin que el worker corra (ni pueda recursar) en cada asset del sitio.
+run_worker_first = ["/"]
 
 [[kv_namespaces]]
 binding = "CAMPAIGN"
